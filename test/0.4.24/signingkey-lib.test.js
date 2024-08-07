@@ -40,7 +40,8 @@ contract('SigningKeys', () => {
       const keysCount = 1
       const [publicKeys, signatures] = firstNodeOperatorKeys.slice(0, keysCount)
       await assert.reverts(
-        app.saveKeysSigs(firstNodeOperatorId, UINT64_MAX_BN, keysCount, publicKeys, signatures),
+        app.saveKeysSigs(firstNodeOperatorId, UINT64_MAX_BN, keysCount, publicKeys, signatures, 
+          firstNodeOperatorKeys.tos),
         'INVALID_KEYS_COUNT'
       )
     })
@@ -49,7 +50,8 @@ contract('SigningKeys', () => {
       const keysCount = 1
       const startIndex = UINT64_MAX_BN.sub(toBN(1))
       const [publicKeys, signatures] = firstNodeOperatorKeys.slice(0, keysCount)
-      await app.saveKeysSigs(firstNodeOperatorId, startIndex, keysCount, publicKeys, signatures)
+      await app.saveKeysSigs(firstNodeOperatorId, startIndex, keysCount, publicKeys, signatures, 
+        [firstNodeOperatorKeys.tos[0]])
 
       const { pubkeys: actualPublicKey, signatures: actualSignature } = await app.loadKeysSigs(
         firstNodeOperatorId,
@@ -65,7 +67,8 @@ contract('SigningKeys', () => {
       const keysCount = 1
       const [publicKeys, signatures] = firstNodeOperatorKeys.slice(0, keysCount)
       await assert.reverts(
-        app.saveKeysSigs(firstNodeOperatorId, UINT64_MAX_BN, keysCount, publicKeys, signatures),
+        app.saveKeysSigs(firstNodeOperatorId, UINT64_MAX_BN, keysCount, publicKeys, signatures, 
+          firstNodeOperatorKeys.tos),
         'INVALID_KEYS_COUNT'
       )
     })
@@ -73,7 +76,7 @@ contract('SigningKeys', () => {
     it('reverts with INVALID_KEYS_COUNT error when keys count > UINT64_MAX', async () => {
       const keysCount = toBN('0x10000000000000001')
       await assert.reverts(
-        app.saveKeysSigs(firstNodeOperatorId, firstNodeOperatorStartIndex, keysCount, '0x', '0x'),
+        app.saveKeysSigs(firstNodeOperatorId, firstNodeOperatorStartIndex, keysCount, '0x', '0x', []),
         'INVALID_KEYS_COUNT'
       )
     })
@@ -81,7 +84,7 @@ contract('SigningKeys', () => {
     it('reverts with "INVALID_KEYS_COUNT" error when keys count is 0', async () => {
       const keysCount = 0
       await assert.reverts(
-        app.saveKeysSigs(firstNodeOperatorId, firstNodeOperatorStartIndex, keysCount, '0x', '0x'),
+        app.saveKeysSigs(firstNodeOperatorId, firstNodeOperatorStartIndex, keysCount, '0x', '0x', []),
         'INVALID_KEYS_COUNT'
       )
     })
@@ -95,7 +98,8 @@ contract('SigningKeys', () => {
           firstNodeOperatorStartIndex,
           keysCount,
           publicKeys + 'deadbeaf',
-          signatures
+          signatures,
+          firstNodeOperatorKeys.tos,
         ),
         'LENGTH_MISMATCH'
       )
@@ -110,7 +114,8 @@ contract('SigningKeys', () => {
           firstNodeOperatorStartIndex,
           keysCount,
           publicKeys,
-          signatures.slice(0, -2)
+          signatures.slice(0, -2),
+          firstNodeOperatorKeys.tos,
         ),
         'LENGTH_MISMATCH'
       )
@@ -126,7 +131,8 @@ contract('SigningKeys', () => {
           firstNodeOperatorStartIndex,
           keysCount,
           publicKeys,
-          signatures.slice(0, -2)
+          signatures.slice(0, -2),
+          [firstNodeOperatorKeys.tos[0], firstNodeOperatorKeys.tos[1]]
         ),
         'LENGTH_MISMATCH'
       )
@@ -141,7 +147,8 @@ contract('SigningKeys', () => {
           firstNodeOperatorStartIndex,
           keysCount,
           signingKeys.EMPTY_PUBLIC_KEY,
-          signature
+          signature, 
+          [firstNodeOperatorKeys.tos[0]]
         ),
         'EMPTY_KEY'
       )
@@ -153,7 +160,8 @@ contract('SigningKeys', () => {
       const [, signatures] = firstNodeOperatorKeys.slice(0, keysCount)
       publicKeys += signingKeys.EMPTY_PUBLIC_KEY.substring(2)
       await assert.reverts(
-        app.saveKeysSigs(firstNodeOperatorId, firstNodeOperatorStartIndex, keysCount, publicKeys, signatures),
+        app.saveKeysSigs(firstNodeOperatorId, firstNodeOperatorStartIndex, keysCount, publicKeys, signatures, 
+          [firstNodeOperatorKeys.tos[0], firstNodeOperatorKeys.tos[1], firstNodeOperatorKeys.tos[2]]),
         'EMPTY_KEY'
       )
     })
@@ -163,7 +171,8 @@ contract('SigningKeys', () => {
         firstNodeOperatorId,
         firstNodeOperatorStartIndex,
         firstNodeOperatorKeys.count,
-        ...firstNodeOperatorKeys.slice()
+        ...firstNodeOperatorKeys.slice(),
+        firstNodeOperatorKeys.tos
       )
       for (let i = 0; i < firstNodeOperatorKeys.count; ++i) {
         assert.emits(
@@ -180,14 +189,16 @@ contract('SigningKeys', () => {
         firstNodeOperatorId,
         firstNodeOperatorStartIndex,
         firstNodeOperatorKeys.count,
-        ...firstNodeOperatorKeys.slice()
+        ...firstNodeOperatorKeys.slice(),
+        firstNodeOperatorKeys.tos
       )
 
       await app.saveKeysSigs(
         secondNodeOperatorId,
         secondNodeOperatorStartIndex,
         secondNodeOperatorKeys.count,
-        ...secondNodeOperatorKeys.slice()
+        ...secondNodeOperatorKeys.slice(),
+        secondNodeOperatorKeys.tos
       )
 
       for (let i = 0; i < firstNodeOperatorKeys.count; ++i) {
@@ -209,14 +220,16 @@ contract('SigningKeys', () => {
         firstNodeOperatorId,
         firstNodeOperatorStartIndex,
         firstNodeOperatorKeys.count,
-        ...firstNodeOperatorKeys.slice()
+        ...firstNodeOperatorKeys.slice(),
+        firstNodeOperatorKeys.tos
       )
 
       await app.saveKeysSigs(
         secondNodeOperatorId,
         secondNodeOperatorStartIndex,
         secondNodeOperatorKeys.count,
-        ...secondNodeOperatorKeys.slice()
+        ...secondNodeOperatorKeys.slice(),
+        secondNodeOperatorKeys.tos
       )
 
       const { pubkeys, signatures } = await app.loadKeysSigsBatch(
@@ -254,13 +267,15 @@ contract('SigningKeys', () => {
         firstNodeOperatorId,
         firstNodeOperatorStartIndex,
         firstNodeOperatorKeys.count,
-        ...firstNodeOperatorKeys.slice()
+        ...firstNodeOperatorKeys.slice(),
+        firstNodeOperatorKeys.tos,
       )
       await app.saveKeysSigs(
         secondNodeOperatorId,
         secondNodeOperatorStartIndex,
         secondNodeOperatorKeys.count,
-        ...secondNodeOperatorKeys.slice()
+        ...secondNodeOperatorKeys.slice(),
+        secondNodeOperatorKeys.tos,
       )
     })
 

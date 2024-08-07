@@ -93,9 +93,9 @@ contract('StakingRouter', ([depositor, stranger]) => {
       // add 150 keys to module
       const keysAmount = 50
       const keys1 = genKeys(keysAmount)
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
 
       await operators.setNodeOperatorStakingLimit(0, 100000, { from: voting })
       await operators.setNodeOperatorStakingLimit(1, 100000, { from: voting })
@@ -115,7 +115,7 @@ contract('StakingRouter', ([depositor, stranger]) => {
       const keysAmount = 1
       const keys1 = genKeys(keysAmount)
       await operators.addNodeOperator('1', ADDRESS_1, { from: voting })
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
       await operators.setNodeOperatorStakingLimit(0, 100000, { from: voting })
 
       const depositsCount = 100
@@ -139,9 +139,9 @@ contract('StakingRouter', ([depositor, stranger]) => {
       // add 150 keys to module
       const keysAmount = 50
       const keys1 = genKeys(keysAmount)
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
 
       await operators.setNodeOperatorStakingLimit(0, 100000, { from: voting })
       await operators.setNodeOperatorStakingLimit(1, 100000, { from: voting })
@@ -206,9 +206,9 @@ contract('StakingRouter', ([depositor, stranger]) => {
       // add 150 keys to module
       const keysAmount = 50
       const keys1 = genKeys(keysAmount)
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
-      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
+      await operators.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
 
       await operators.setNodeOperatorStakingLimit(0, 100000, { from: voting })
       await operators.setNodeOperatorStakingLimit(1, 100000, { from: voting })

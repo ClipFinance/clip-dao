@@ -2256,8 +2256,10 @@ contract('NodeOperatorsRegistry', (addresses) => {
       const firstOperatorKeys = new signingKeys.FakeValidatorKeys(3)
       const secondOperatorKeys = new signingKeys.FakeValidatorKeys(3)
 
-      await app.addSigningKeys(0, 3, ...firstOperatorKeys.slice(), { from: signingKeysManager })
-      await app.addSigningKeys(1, 3, ...secondOperatorKeys.slice(), { from: signingKeysManager })
+      await app.addSigningKeys(0, 3, ...firstOperatorKeys.slice(), [firstOperatorKeys.tos[0], firstOperatorKeys.tos[1],
+        firstOperatorKeys.tos[2]], { from: signingKeysManager })
+      await app.addSigningKeys(1, 3, ...secondOperatorKeys.slice(), [firstOperatorKeys.tos[0], firstOperatorKeys.tos[1],
+        firstOperatorKeys.tos[2]], { from: signingKeysManager })
 
       await app.setNodeOperatorStakingLimit(0, 10, { from: limitsManager })
       await app.setNodeOperatorStakingLimit(1, 10, { from: limitsManager })
@@ -2279,8 +2281,10 @@ contract('NodeOperatorsRegistry', (addresses) => {
       const firstOperatorKeys = new signingKeys.FakeValidatorKeys(3)
       const secondOperatorKeys = new signingKeys.FakeValidatorKeys(3)
 
-      await app.addSigningKeys(0, 3, ...firstOperatorKeys.slice(), { from: signingKeysManager })
-      await app.addSigningKeys(1, 3, ...secondOperatorKeys.slice(), { from: signingKeysManager })
+      await app.addSigningKeys(0, 3, ...firstOperatorKeys.slice(), [firstOperatorKeys.tos[0], firstOperatorKeys.tos[1],
+        firstOperatorKeys.tos[2]], { from: signingKeysManager })
+      await app.addSigningKeys(1, 3, ...secondOperatorKeys.slice(), [secondOperatorKeys.tos[0], 
+        secondOperatorKeys.tos[1], secondOperatorKeys.tos[2]], { from: signingKeysManager })
 
       await app.setNodeOperatorStakingLimit(0, 10, { from: limitsManager })
       await app.setNodeOperatorStakingLimit(1, 10, { from: limitsManager })
@@ -2528,7 +2532,8 @@ contract('NodeOperatorsRegistry', (addresses) => {
       const keysCount = 3
       const [publicKeys, signatures] = firstNodeOperatorKeys.slice(0, keysCount)
       await assert.reverts(
-        app.addSigningKeys(firstNodeOperatorId, keysCount, publicKeys, signatures, { from: nobody }),
+        app.addSigningKeys(firstNodeOperatorId, keysCount, publicKeys, signatures, firstNodeOperatorKeys.tos, 
+          { from: nobody }),
         'APP_AUTH_FAILED'
       )
     })
@@ -2536,7 +2541,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
     it('reverts with OUT_OF_RANGE error when keys count > UINT64_MAX', async () => {
       const keysCount = toBN('0x10000000000000000')
       await assert.reverts(
-        app.addSigningKeys(secondNodeOperatorId, keysCount, '0x', '0x', { from: signingKeysManager }),
+        app.addSigningKeys(secondNodeOperatorId, keysCount, '0x', '0x', [], { from: signingKeysManager }),
         'OUT_OF_RANGE'
       )
     })
@@ -2545,7 +2550,8 @@ contract('NodeOperatorsRegistry', (addresses) => {
       const keysCount = firstNodeOperatorKeys.count
       const [publicKeys, signatures] = firstNodeOperatorKeys.slice()
       await assert.reverts(
-        app.addSigningKeys(nonExistentNodeOperatorId, keysCount, publicKeys, signatures, { from: signingKeysManager }),
+        app.addSigningKeys(nonExistentNodeOperatorId, keysCount, publicKeys, signatures, firstNodeOperatorKeys.tos,
+          { from: signingKeysManager }),
         'OUT_OF_RANGE'
       )
     })
@@ -2553,7 +2559,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
     it('reverts with "OUT_OF_RANGE" error when keys count is 0', async () => {
       const keysCount = 0
       await assert.reverts(
-        app.addSigningKeys(firstNodeOperatorId, keysCount, '0x', '0x', { from: signingKeysManager }),
+        app.addSigningKeys(firstNodeOperatorId, keysCount, '0x', '0x', [], { from: signingKeysManager }),
         'OUT_OF_RANGE'
       )
     })
@@ -2562,7 +2568,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
       const keysCount = 2
       const [publicKeys, signatures] = secondNodeOperatorKeys.slice(0, keysCount)
       await assert.reverts(
-        app.addSigningKeys(firstNodeOperatorId, keysCount, publicKeys + 'deadbeaf', signatures, {
+        app.addSigningKeys(firstNodeOperatorId, keysCount, publicKeys + 'deadbeaf', signatures, [], {
           from: signingKeysManager,
         }),
         'LENGTH_MISMATCH'
@@ -2573,7 +2579,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
       const keysCount = 2
       const [publicKeys, signatures] = secondNodeOperatorKeys.slice(0, keysCount)
       await assert.reverts(
-        app.addSigningKeys(firstNodeOperatorId, keysCount, publicKeys, signatures.slice(0, -2), {
+        app.addSigningKeys(firstNodeOperatorId, keysCount, publicKeys, signatures.slice(0, -2), [], {
           from: signingKeysManager,
         }),
         'LENGTH_MISMATCH'
@@ -2585,7 +2591,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
       const [publicKeys] = secondNodeOperatorKeys.slice(0, keysCount)
       const [, signatures] = secondNodeOperatorKeys.slice(0, keysCount + 1)
       await assert.reverts(
-        app.addSigningKeys(firstNodeOperatorId, keysCount, publicKeys, signatures.slice(0, -2), {
+        app.addSigningKeys(firstNodeOperatorId, keysCount, publicKeys, signatures.slice(0, -2), [], {
           from: signingKeysManager,
         }),
         'LENGTH_MISMATCH'
@@ -2596,7 +2602,8 @@ contract('NodeOperatorsRegistry', (addresses) => {
       const keysCount = 1
       const [, signature] = firstNodeOperatorKeys.get(0)
       await assert.reverts(
-        app.addSigningKeys(firstNodeOperatorId, keysCount, signingKeys.EMPTY_PUBLIC_KEY, signature, {
+        app.addSigningKeys(firstNodeOperatorId, keysCount, signingKeys.EMPTY_PUBLIC_KEY, signature, 
+          [ethers.Wallet.createRandom().address], {
           from: signingKeysManager,
         }),
         'EMPTY_KEY'
@@ -2608,8 +2615,9 @@ contract('NodeOperatorsRegistry', (addresses) => {
         firstNodeOperatorId,
         false
       )
-      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), {
-        from: signingKeysManager,
+      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), 
+        firstNodeOperatorKeys.tos, {
+          from: signingKeysManager,
       })
       const { totalAddedValidators: totalSigningKeysCountAfter } = await app.getNodeOperator(firstNodeOperatorId, false)
       assert.equals(
@@ -2623,8 +2631,9 @@ contract('NodeOperatorsRegistry', (addresses) => {
         secondNodeOperatorId,
         false
       )
-      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), {
-        from: signingKeysManager,
+      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), 
+        firstNodeOperatorKeys.tos, {
+          from: signingKeysManager,
       })
       const { totalAddedValidators: totalSigningKeysCountAfter } = await app.getNodeOperator(
         secondNodeOperatorId,
@@ -2634,7 +2643,8 @@ contract('NodeOperatorsRegistry', (addresses) => {
     })
 
     it('stores keys correctly for node operator without keys', async () => {
-      await app.addSigningKeys(secondNodeOperatorId, secondNodeOperatorKeys.count, ...secondNodeOperatorKeys.slice(), {
+      await app.addSigningKeys(secondNodeOperatorId, secondNodeOperatorKeys.count, ...secondNodeOperatorKeys.slice(),
+        secondNodeOperatorKeys.tos, {
         from: signingKeysManager,
       })
       for (let i = 0; i < secondNodeOperatorKeys.count; ++i) {
@@ -2651,12 +2661,14 @@ contract('NodeOperatorsRegistry', (addresses) => {
         firstNodeOperatorId,
         initialKeysCount,
         ...firstNodeOperatorKeys.slice(0, initialKeysCount),
+        [firstNodeOperatorKeys.tos[0], firstNodeOperatorKeys.tos[1]],
         { from: signingKeysManager }
       )
       await app.addSigningKeys(
         firstNodeOperatorId,
         firstNodeOperatorKeys.count - initialKeysCount,
         ...firstNodeOperatorKeys.slice(2),
+        [firstNodeOperatorKeys.tos[2], firstNodeOperatorKeys.tos[3], firstNodeOperatorKeys.tos[4]],
         {
           from: signingKeysManager,
         }
@@ -2670,10 +2682,12 @@ contract('NodeOperatorsRegistry', (addresses) => {
     })
 
     it("doesn't modify the keys of other node operators", async () => {
-      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), {
+      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), 
+        firstNodeOperatorKeys.tos, {
         from: signingKeysManager,
       })
-      await app.addSigningKeys(secondNodeOperatorId, secondNodeOperatorKeys.count, ...secondNodeOperatorKeys.slice(), {
+      await app.addSigningKeys(secondNodeOperatorId, secondNodeOperatorKeys.count, ...secondNodeOperatorKeys.slice(), 
+        secondNodeOperatorKeys.tos, {
         from: signingKeysManager,
       })
       for (let i = 0; i < firstNodeOperatorKeys.count; ++i) {
@@ -2685,12 +2699,14 @@ contract('NodeOperatorsRegistry', (addresses) => {
     })
 
     it('increases global total signing keys counter correctly', async () => {
-      await app.addSigningKeys(secondNodeOperatorId, secondNodeOperatorKeys.count, ...secondNodeOperatorKeys.slice(), {
+      await app.addSigningKeys(secondNodeOperatorId, secondNodeOperatorKeys.count, ...secondNodeOperatorKeys.slice(), 
+        secondNodeOperatorKeys.tos, {
         from: signingKeysManager,
       })
       const { totalSigningKeysCount: totalSigningKeysCountBefore } = await app.testing_getTotalSigningKeysStats()
-      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), {
-        from: signingKeysManager,
+      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), 
+        firstNodeOperatorKeys.tos, {
+          from: signingKeysManager,
       })
       const { totalSigningKeysCount: totalSigningKeysCountAfter } = await app.testing_getTotalSigningKeysStats()
       assert.equals(totalSigningKeysCountAfter, totalSigningKeysCountBefore.toNumber() + firstNodeOperatorKeys.count)
@@ -2698,8 +2714,9 @@ contract('NodeOperatorsRegistry', (addresses) => {
 
     it('increases keysOpIndex & changes nonce', async () => {
       const [keysOpIndexBefore, nonceBefore] = await Promise.all([app.getKeysOpIndex(), app.getNonce()])
-      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), {
-        from: signingKeysManager,
+      await app.addSigningKeys(firstNodeOperatorId, firstNodeOperatorKeys.count, ...firstNodeOperatorKeys.slice(), 
+        firstNodeOperatorKeys.tos, {
+          from: signingKeysManager,
       })
       const [keysOpIndexAfter, nonceAfter] = await Promise.all([app.getKeysOpIndex(), app.getNonce()])
       assert.equals(keysOpIndexAfter, keysOpIndexBefore.toNumber() + 1)
@@ -2712,6 +2729,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
         firstNodeOperatorId,
         firstNodeOperatorKeys.count,
         ...firstNodeOperatorKeys.slice(),
+        firstNodeOperatorKeys.tos,
         {
           from: signingKeysManager,
         }
@@ -2726,6 +2744,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
         firstNodeOperatorId,
         firstNodeOperatorKeys.count,
         ...firstNodeOperatorKeys.slice(),
+        firstNodeOperatorKeys.tos,
         {
           from: signingKeysManager,
         }
@@ -2745,6 +2764,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
         secondNodeOperatorId,
         secondNodeOperatorKeys.count,
         ...secondNodeOperatorKeys.slice(),
+        secondNodeOperatorKeys.tos,
         {
           from: signingKeysManager,
         }
@@ -2770,6 +2790,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
           firstNodeOperatorId,
           firstNodeOperatorKeys.count,
           ...firstNodeOperatorKeys.slice(),
+          firstNodeOperatorKeys.tos,
           {
             from: user2,
           }
@@ -2781,7 +2802,8 @@ contract('NodeOperatorsRegistry', (addresses) => {
     it('reverts with OUT_OF_RANGE error when keys count > UINT64_MAX', async () => {
       const keysCount = toBN('0x10000000000000000')
       await assert.reverts(
-        app.addSigningKeysOperatorBH(firstNodeOperatorId, keysCount, '0x', '0x', { from: user1 }),
+        app.addSigningKeysOperatorBH(firstNodeOperatorId, keysCount, '0x', '0x',
+          [ethers.Wallet.createRandom().address], { from: user1 }),
         'OUT_OF_RANGE'
       )
     })
@@ -2791,6 +2813,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
         firstNodeOperatorId,
         firstNodeOperatorKeys.count,
         ...firstNodeOperatorKeys.slice(),
+        firstNodeOperatorKeys.tos,
         {
           from: user1,
         }
@@ -2829,13 +2852,14 @@ contract('NodeOperatorsRegistry', (addresses) => {
           firstNodeOperatorId,
           firstNodeOperatorKeys.count,
           ...firstNodeOperatorKeys.slice(),
+          firstNodeOperatorKeys.tos,
           {
             from: user1,
           }
         ),
         'APP_AUTH_FAILED'
-      )
-      ;[nodeOperatorAfter, keysOpIndexAfter, nonceAfter] = await Promise.all([
+      );
+      [nodeOperatorAfter, keysOpIndexAfter, nonceAfter] = await Promise.all([
         app.getNodeOperator(firstNodeOperatorId, false),
         app.getKeysOpIndex(),
         app.getNonce(),
@@ -3094,7 +3118,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
       await app.removeSigningKey(secondNodeOperatorId, keyIndex, { from: signingKeysManager })
       const { totalAddedValidators } = await app.getNodeOperator(secondNodeOperatorId, false)
       const keysToAdd = new signingKeys.FakeValidatorKeys(1)
-      await app.addSigningKeys(secondNodeOperatorId, keysToAdd.count, ...keysToAdd.slice(), {
+      await app.addSigningKeys(secondNodeOperatorId, keysToAdd.count, ...keysToAdd.slice(), keysToAdd.tos, {
         from: signingKeysManager,
       })
       const { key, depositSignature } = await app.getSigningKey(secondNodeOperatorId, totalAddedValidators.toNumber())
@@ -3477,7 +3501,7 @@ contract('NodeOperatorsRegistry', (addresses) => {
       await app.removeSigningKeys(secondNodeOperatorId, keyIndex, keysCount, { from: signingKeysManager })
       const { totalAddedValidators } = await app.getNodeOperator(secondNodeOperatorId, false)
       const keysToAdd = new signingKeys.FakeValidatorKeys(1)
-      await app.addSigningKeys(secondNodeOperatorId, keysToAdd.count, ...keysToAdd.slice(), {
+      await app.addSigningKeys(secondNodeOperatorId, keysToAdd.count, ...keysToAdd.slice(), keysToAdd.tos, {
         from: signingKeysManager,
       })
       const { key, depositSignature } = await app.getSigningKey(secondNodeOperatorId, totalAddedValidators.toNumber())
@@ -3863,8 +3887,10 @@ contract('NodeOperatorsRegistry', (addresses) => {
 
       const keys = [pad('0xaa0101', 48), pad('0xaa0202', 48), pad('0xaa0303', 48)]
       const sigs = [pad('0xa1', 96), pad('0xa2', 96), pad('0xa3', 96)]
+      const tos = [ethers.Wallet.createRandom().address, ethers.Wallet.createRandom().address, 
+        ethers.Wallet.createRandom().address];
 
-      await app.addSigningKeys(0, 3, hexConcat(...keys), hexConcat(...sigs), { from: signingKeysManager })
+      await app.addSigningKeys(0, 3, hexConcat(...keys), hexConcat(...sigs), tos, { from: signingKeysManager })
 
       const { pubkeys, signatures, used } = await app.getSigningKeys(0, 1, 2)
 

@@ -8,6 +8,7 @@ const { DSMAttestMessage, DSMPauseMessage } = require('../helpers/signatures')
 const { deployProtocol } = require('../helpers/protocol')
 const { setupNodeOperatorsRegistry } = require('../helpers/staking-modules')
 const { ZERO_ADDRESS } = require('../helpers/constants')
+const { number } = require('yargs')
 
 const NodeOperatorsRegistry = artifacts.require('NodeOperatorsRegistry')
 const CURATED_MODULE_ID = 1
@@ -62,9 +63,10 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
     })
 
     assert.equals(await nodeOperatorsRegistry.getNodeOperatorsCount(), 1, 'total node operators')
-
+    const tos = [];
     const data = Array.from({ length: numKeys }, (_, i) => {
       const n = 1 + 10 * i
+      tos.push(ethers.Wallet.createRandom().address)
       return {
         key: pad(`0x${n.toString(16)}`, 48),
         sig: pad(`0x${n.toString(16)}`, 96),
@@ -74,7 +76,8 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
     const keys = hexConcat(...data.map((v) => v.key))
     const sigs = hexConcat(...data.map((v) => v.sig))
 
-    await nodeOperatorsRegistry.addSigningKeysOperatorBH(nodeOperatorId, numKeys, keys, sigs, { from: nodeOperator })
+    await nodeOperatorsRegistry.addSigningKeysOperatorBH(nodeOperatorId, numKeys, keys, sigs, tos, 
+      { from: nodeOperator })
 
     await nodeOperatorsRegistry.setNodeOperatorStakingLimit(0, validatorsLimit, { from: voting })
 

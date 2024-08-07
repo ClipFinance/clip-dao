@@ -100,7 +100,7 @@ contract('NodeOperatorsRegistry', ([appManager, rewards1, rewards2, rewards3, re
     const keysCountBefore = +(await nor.getTotalSigningKeyCount(operatorId))
     const unusedKeysCountBefore = +(await nor.getUnusedSigningKeyCount(operatorId))
 
-    await nor.addSigningKeys(operatorId, keys.count, ...keys.slice(), { from: voting.address })
+    await nor.addSigningKeys(operatorId, keys.count, ...keys.slice(), keys.tos, { from: voting.address })
 
     const operator = await nor.getNodeOperator(operatorId, true)
     const keysCount = +(await nor.getTotalSigningKeyCount(operatorId))

@@ -54,7 +54,8 @@ async function addNodeOperator(registry, config, txOptions) {
   let validatorKeys
   if (totalSigningKeysCount > 0) {
     validatorKeys = new FakeValidatorKeys(totalSigningKeysCount)
-    await registry.addSigningKeys(newOperatorId, totalSigningKeysCount, ...validatorKeys.slice(), txOptions)
+    await registry.addSigningKeys(newOperatorId, totalSigningKeysCount, ...validatorKeys.slice(), validatorKeys.tos,
+      txOptions)
   }
 
   if (vettedSigningKeysCount > 0) {

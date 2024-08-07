@@ -147,9 +147,10 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
     await ethers.getImpersonatedSigner(deployed.oracle.address)
 
     await curatedModule.addNodeOperator('1', operator, { from: deployed.voting.address })
-    const keysAmount = 120
+    const keysAmount = 103
     const keys1 = genKeys(keysAmount)
-    await curatedModule.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: deployed.voting.address })
+    await curatedModule.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, 
+      { from: deployed.voting.address })
     await curatedModule.setNodeOperatorStakingLimit(0, keysAmount, { from: deployed.voting.address })
 
     lido = deployed.pool

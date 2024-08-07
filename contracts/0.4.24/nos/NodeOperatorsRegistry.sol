@@ -857,6 +857,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     ) internal returns (bytes memory pubkeys, bytes memory signatures, address[] memory tos) {
         (pubkeys, signatures) = SigningKeys.initKeysSigsBuf(_keysCountToLoad);
         uint256 loadedKeysCount;
+        tos = new address[](_keysCountToLoad);
         //uint256 depositedSigningKeysCountBefore;
         //uint256 depositedSigningKeysCountAfter;
         //uint256 keysCount;
@@ -878,9 +879,12 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
             assert(depositedSigningKeysCountAfter > depositedSigningKeysCountBefore);
 
             uint256 keysCount = depositedSigningKeysCountAfter - depositedSigningKeysCountBefore;
-            tos = SIGNING_KEYS_MAPPING_NAME.loadKeysSigs(
+            address[] memory tmpTos = SIGNING_KEYS_MAPPING_NAME.loadKeysSigs(
                 _nodeOperatorIds[i], depositedSigningKeysCountBefore, keysCount, pubkeys, signatures, loadedKeysCount
             );
+            for (uint256 j = 0; j < tmpTos.length; ++j) {
+                tos[loadedKeysCount + j] = tmpTos[j];
+            }
             loadedKeysCount += keysCount;
 
             emit DepositedSigningKeysCountChanged(_nodeOperatorIds[i], depositedSigningKeysCountAfter);

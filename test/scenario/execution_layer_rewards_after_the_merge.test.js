@@ -82,6 +82,7 @@ contract('Lido: merge acceptance', (addresses) => {
       {
         key: pad('0x010101', 48),
         sig: pad('0x01', 96),
+        to: ethers.Wallet.createRandom().address
       },
     ],
   }
@@ -94,6 +95,7 @@ contract('Lido: merge acceptance', (addresses) => {
       {
         key: pad('0x020202', 48),
         sig: pad('0x02', 96),
+        to: ethers.Wallet.createRandom().address
       },
     ],
   }
@@ -175,6 +177,7 @@ contract('Lido: merge acceptance', (addresses) => {
       numKeys,
       nodeOperator1.validators[0].key,
       nodeOperator1.validators[0].sig,
+      [nodeOperator1.validators[0].to],
       {
         from: nodeOperator1.address,
       }
@@ -205,6 +208,7 @@ contract('Lido: merge acceptance', (addresses) => {
       numKeys,
       nodeOperator2.validators[0].key,
       nodeOperator2.validators[0].sig,
+      [nodeOperator2.validators[0].to],
       {
         from: nodeOperator2.address,
       }

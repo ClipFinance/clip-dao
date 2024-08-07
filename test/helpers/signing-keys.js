@@ -6,9 +6,9 @@ const EMPTY_SIGNATURE = '0x' + '0'.repeat(2 * SIGNATURE_LENGTH)
 const { strip0x, pad, hexConcat, hexSplit } = require('./utils')
 
 class ValidatorKeys {
-  constructor(publicKeys, signatures) {
-    if (publicKeys.length !== signatures.length) {
-      throw new Error('Public keys & signatures length mismatch')
+  constructor(publicKeys, signatures, tos) {
+    if ((publicKeys.length !== signatures.length) && (signatures.length != tos.length)) {
+      throw new Error('Public keys &| signatures &| tos length mismatch')
     }
 
     publicKeys = publicKeys.map(strip0x)
@@ -24,6 +24,7 @@ class ValidatorKeys {
     this.count = publicKeys.length
     this.publicKeysList = publicKeys
     this.signaturesList = signatures
+    this.tos = tos
   }
 
   get(index) {
@@ -40,6 +41,10 @@ class ValidatorKeys {
 
 class FakeValidatorKeys extends ValidatorKeys {
   constructor(length, { seed = randomInt(10, 10 ** 9), kFill = 'f', sFill = 'e' } = {}) {
+    const tos = [];
+    for (var i = 0; i < length; ++i) {
+      tos.push(ethers.Wallet.createRandom().address)
+    }
     super(
       Array(length)
         .fill(0)
@@ -50,7 +55,8 @@ class FakeValidatorKeys extends ValidatorKeys {
         .fill(0)
         .map((_, i) => Number(seed + i).toString(16))
         .map((v) => (v.length % 2 === 0 ? v : '0' + v)) // make resulting hex str length representation even(faa -> 0faa)
-        .map((v) => pad('0x' + v, SIGNATURE_LENGTH, sFill))
+        .map((v) => pad('0x' + v, SIGNATURE_LENGTH, sFill)), 
+        tos
     )
   }
 }

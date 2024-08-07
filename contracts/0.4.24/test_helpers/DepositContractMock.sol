@@ -31,7 +31,7 @@ contract DepositContractMock {
         payable
     {
         calls.push(Call(pubkey, withdrawal_credentials, signature, deposit_data_root, msg.value));
-        to.send(msg.value);
+       // to.transfer(msg.value);
     }
 
     function totalCalls() external view returns (uint256) {

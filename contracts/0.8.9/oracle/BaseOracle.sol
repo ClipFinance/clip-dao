@@ -10,7 +10,6 @@ import { AccessControlEnumerable } from "../utils/access/AccessControlEnumerable
 
 import { IReportAsyncProcessor } from "./HashConsensus.sol";
 
-
 interface IConsensusContract {
     function getIsMember(address addr) external view returns (bool);
 

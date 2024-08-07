@@ -7,7 +7,6 @@ import { SafeCast } from "@openzeppelin/contracts-v4.4/utils/math/SafeCast.sol";
 import { Math } from "../lib/Math.sol";
 import { AccessControlEnumerable } from "../utils/access/AccessControlEnumerable.sol";
 
-
 /// @notice A contract that gets consensus reports (i.e. hashes) pushed to and processes them
 /// asynchronously.
 ///

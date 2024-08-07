@@ -63,8 +63,8 @@ contract('StakingRouter', ([depositor, stranger1, address1, address2]) => {
       await curated.addNodeOperator('1', address1, { from: voting })
       await anotherCurated.addNodeOperator('1', address2, { from: voting })
 
-      await curated.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
-      await anotherCurated.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, { from: voting })
+      await curated.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
+      await anotherCurated.addSigningKeys(0, keysAmount, keys1.pubkeys, keys1.sigkeys, keys1.tos, { from: voting })
 
       await curated.setNodeOperatorStakingLimit(0, 100000, { from: voting, gasPrice: 10 })
       await anotherCurated.setNodeOperatorStakingLimit(0, 100000, { from: voting, gasPrice: 10 })

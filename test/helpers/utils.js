@@ -31,13 +31,15 @@ const hexConcat = (first, ...rest) => {
 function genKeys(cnt = 1) {
   let pubkeys = ''
   let sigkeys = ''
+  const tos = []
 
   for (let i = 1; i <= cnt; i++) {
     pubkeys = hexConcat(pubkeys, `0x`.padEnd(98, i.toString(16))) // 48 bytes * 2 chars + 2 chars (0x)
     sigkeys = hexConcat(sigkeys, `0x`.padEnd(194, i.toString(16))) // 96 bytes * 2 chars + 2 chars (0x)
+    tos.push(ethers.Wallet.createRandom().address);
   }
 
-  return { pubkeys, sigkeys }
+  return { pubkeys, sigkeys, tos }
 }
 
 const hexSplit = (hexStr, lenBytes) => {

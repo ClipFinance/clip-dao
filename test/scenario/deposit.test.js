@@ -82,12 +82,14 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
     await operators.addNodeOperator('2', ADDRESS_2, { from: voting })
 
     await stakingRouter.setWithdrawalCredentials(pad('0x0202', 32), { from: voting })
-    await operators.addSigningKeys(0, 1, pad('0x010203', 48), pad('0x01', 96), { from: voting })
+    await operators.addSigningKeys(0, 1, pad('0x010203', 48), pad('0x01', 96), [ethers.Wallet.createRandom().address], { from: voting })
     await operators.addSigningKeys(
       0,
       3,
       hexConcat(pad('0x010204', 48), pad('0x010205', 48), pad('0x010206', 48)),
       hexConcat(pad('0x01', 96), pad('0x01', 96), pad('0x01', 96)),
+      [ethers.Wallet.createRandom().address, ethers.Wallet.createRandom().address, 
+        ethers.Wallet.createRandom().address],
       { from: voting }
     )
 
@@ -147,12 +149,15 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
     await operators.addNodeOperator('2', ADDRESS_2, { from: voting })
 
     await stakingRouter.setWithdrawalCredentials(pad('0x0202', 32), { from: voting })
-    await operators.addSigningKeys(0, 1, pad('0x010203', 48), pad('0x01', 96), { from: voting })
+    await operators.addSigningKeys(0, 1, pad('0x010203', 48), pad('0x01', 96), [ethers.Wallet.createRandom().address], 
+      { from: voting })
     await operators.addSigningKeys(
       0,
       3,
       hexConcat(pad('0x010204', 48), pad('0x010205', 48), pad('0x010206', 48)),
       hexConcat(pad('0x01', 96), pad('0x01', 96), pad('0x01', 96)),
+      [ethers.Wallet.createRandom().address, ethers.Wallet.createRandom().address, 
+        ethers.Wallet.createRandom().address],
       { from: voting }
     )
 
@@ -161,6 +166,8 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
       3,
       hexConcat(pad('0x020204', 48), pad('0x020205', 48), pad('0x020206', 48)),
       hexConcat(pad('0x02', 96), pad('0x02', 96), pad('0x02', 96)),
+      [ethers.Wallet.createRandom().address, ethers.Wallet.createRandom().address, 
+        ethers.Wallet.createRandom().address],
       { from: voting }
     )
 
@@ -290,7 +297,8 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
     assert.equals(await operators.getUnusedSigningKeyCount(3, { from: nobody }), 0)
 
     // Adding a key & setting staking limit will help
-    await operators.addSigningKeys(0, 1, pad('0x0003', 48), pad('0x01', 96), { from: voting })
+    await operators.addSigningKeys(0, 1, pad('0x0003', 48), pad('0x01', 96), [ethers.Wallet.createRandom().address], 
+      { from: voting })
     await operators.setNodeOperatorStakingLimit(0, 3, { from: voting })
 
     await web3.eth.sendTransaction({ to: app.address, from: user3, value: ETH(1) })
@@ -432,7 +440,8 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
     assert.equals(await operators.getUnusedSigningKeyCount(3, { from: nobody }), 0)
 
     // Adding a key & setting staking limit will help
-    await operators.addSigningKeys(0, 1, pad('0x0003', 48), pad('0x01', 96), { from: voting })
+    await operators.addSigningKeys(0, 1, pad('0x0003', 48), pad('0x01', 96), [ethers.Wallet.createRandom().address], 
+    { from: voting })
     await operators.setNodeOperatorStakingLimit(0, 3, { from: voting })
 
     await web3.eth.sendTransaction({ to: app.address, from: user3, value: ETH(1) })
@@ -483,6 +492,7 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
       2,
       hexConcat(pad('0x0001', 48), pad('0x0002', 48)),
       hexConcat(pad('0x01', 96), pad('0x01', 96)),
+      [ethers.Wallet.createRandom().address, ethers.Wallet.createRandom().address],
       {
         from: voting,
       }
@@ -495,6 +505,7 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
       2,
       hexConcat(pad('0x0101', 48), pad('0x0102', 48)),
       hexConcat(pad('0x01', 96), pad('0x01', 96)),
+      [ethers.Wallet.createRandom().address, ethers.Wallet.createRandom().address],
       {
         from: voting,
       }
@@ -507,6 +518,7 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
       2,
       hexConcat(pad('0x0201', 48), pad('0x0202', 48)),
       hexConcat(pad('0x01', 96), pad('0x01', 96)),
+      [ethers.Wallet.createRandom().address, ethers.Wallet.createRandom().address],
       {
         from: voting,
       }
@@ -538,6 +550,7 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
       2,
       hexConcat(pad('0x0201', 48), pad('0x0202', 48)),
       hexConcat(pad('0x01', 96), pad('0x01', 96)),
+      [ethers.Wallet.createRandom().address, ethers.Wallet.createRandom().address],
       {
         from: voting,
       }
@@ -576,8 +589,16 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
       keys: [...Array(keysCount)].map((v, i) => pad('0xaa02' + i.toString(16), 48)),
       sigs: [...Array(keysCount)].map((v, i) => pad('0x' + i.toString(16), 96)),
     }
-    await operators.addSigningKeys(0, keysCount, hexConcat(...keys1.keys), hexConcat(...keys1.sigs), { from: voting })
-    await operators.addSigningKeys(1, keysCount, hexConcat(...keys2.keys), hexConcat(...keys2.sigs), { from: voting })
+    const tos1 = [];
+    const tos2 = [];
+    for (var i = 0; i < keysCount; ++i) {
+      tos1.push(ethers.Wallet.createRandom().address)
+      tos2.push(ethers.Wallet.createRandom().address)
+    }
+    await operators.addSigningKeys(0, keysCount, hexConcat(...keys1.keys), hexConcat(...keys1.sigs), tos1, 
+      { from: voting })
+    await operators.addSigningKeys(1, keysCount, hexConcat(...keys2.keys), hexConcat(...keys2.sigs), tos2, 
+      { from: voting })
 
     await operators.setNodeOperatorStakingLimit(0, UNLIMITED, { from: voting })
     await operators.setNodeOperatorStakingLimit(1, UNLIMITED, { from: voting })
@@ -611,8 +632,16 @@ contract('Lido with official deposit contract', ([user1, user2, user3, nobody, d
       keys: [...Array(keysCount)].map((v, i) => pad('0xaa02' + i.toString(16), 48)),
       sigs: [...Array(keysCount)].map((v, i) => pad('0x' + i.toString(16), 96)),
     }
-    await operators.addSigningKeys(0, keysCount, hexConcat(...keys1.keys), hexConcat(...keys1.sigs), { from: voting })
-    await operators.addSigningKeys(1, keysCount, hexConcat(...keys2.keys), hexConcat(...keys2.sigs), { from: voting })
+    const tos1 = [];
+    const tos2 = [];
+    for (var i = 0; i < keysCount; ++i) {
+      tos1.push(ethers.Wallet.createRandom().address);
+      tos2.push(ethers.Wallet.createRandom().address);
+    }
+    await operators.addSigningKeys(0, keysCount, hexConcat(...keys1.keys), hexConcat(...keys1.sigs), tos1, 
+      { from: voting })
+    await operators.addSigningKeys(1, keysCount, hexConcat(...keys2.keys), hexConcat(...keys2.sigs), tos2, 
+      { from: voting })
 
     await operators.setNodeOperatorStakingLimit(0, UNLIMITED, { from: voting })
     await operators.setNodeOperatorStakingLimit(1, UNLIMITED, { from: voting })

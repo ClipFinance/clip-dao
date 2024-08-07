@@ -116,6 +116,7 @@ contract('Lido: happy path', (addresses) => {
       {
         key: pad('0x010101', 48),
         sig: pad('0x01', 96),
+        to: ethers.Wallet.createRandom().address
       },
     ],
   }
@@ -142,6 +143,7 @@ contract('Lido: happy path', (addresses) => {
       numKeys,
       nodeOperator1.validators[0].key,
       nodeOperator1.validators[0].sig,
+      [nodeOperator1.validators[0].to],
       {
         from: nodeOperator1.address,
       }
@@ -278,6 +280,7 @@ contract('Lido: happy path', (addresses) => {
       {
         key: pad('0x020202', 48),
         sig: pad('0x02', 96),
+        to: ethers.Wallet.createRandom().address
       },
     ],
   }
@@ -303,6 +306,7 @@ contract('Lido: happy path', (addresses) => {
       numKeys,
       nodeOperator2.validators[0].key,
       nodeOperator2.validators[0].sig,
+      [nodeOperator2.validators[0].to],
       {
         from: nodeOperator2.address,
       }
@@ -467,17 +471,23 @@ contract('Lido: happy path', (addresses) => {
     validators: [...Array(10).keys()].map((i) => ({
       key: pad('0xaa01' + i.toString(16), 48),
       sig: pad('0x' + i.toString(16), 96),
+      to: ethers.Wallet.createRandom().address
     })),
   }
 
   it('nodeOperator3 registered in NodeOperatorsRegistry and adds 10 signing keys', async () => {
     const validatorsCount = 10
     await nodeOperatorsRegistry.addNodeOperator(nodeOperator3.name, nodeOperator3.address, { from: voting })
+    const tos = [];
+    for (validator of nodeOperator3.validators) {
+      tos.push(validator.to);
+    }
     await nodeOperatorsRegistry.addSigningKeysOperatorBH(
       nodeOperator3.id,
       validatorsCount,
       hexConcat(...nodeOperator3.validators.map((v) => v.key)),
       hexConcat(...nodeOperator3.validators.map((v) => v.sig)),
+      tos,
       {
         from: nodeOperator3.address,
       }

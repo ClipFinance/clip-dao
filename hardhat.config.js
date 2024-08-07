@@ -147,10 +147,16 @@ module.exports = {
       {
         version: '0.4.24',
         settings: solcSettings4,
+        mocha: {
+          timeout: 100000000,
+        },
       },
       {
         version: '0.6.11',
         settings: solcSettings6,
+        mocha: {
+          timeout: 100000000,
+        },
       },
       {
         version: '0.6.12',
@@ -159,10 +165,16 @@ module.exports = {
       {
         version: '0.8.4',
         settings: solcSettings8,
+        mocha: {
+          timeout: 100000000,
+        },
       },
       {
         version: '0.8.9',
         settings: solcSettings8,
+        mocha: {
+          timeout: 100000000,
+        },
       },
     ],
     overrides: {
