@@ -173,9 +173,9 @@ contract NodeOperatorsRegistryMock is NodeOperatorsRegistry {
 
     function testing_obtainDepositData(uint256 _keysToAllocate)
         external
-        returns (uint256 loadedValidatorsKeysCount, bytes memory publicKeys, bytes memory signatures)
+        returns (uint256 loadedValidatorsKeysCount, bytes memory publicKeys, bytes memory signatures, address[] tos)
     {
-        (publicKeys, signatures) = this.obtainDepositData(_keysToAllocate, new bytes(0));
+        (publicKeys, signatures, tos) = this.obtainDepositData(_keysToAllocate, new bytes(0));
         emit ValidatorsKeysLoaded(publicKeys, signatures);
     }
 

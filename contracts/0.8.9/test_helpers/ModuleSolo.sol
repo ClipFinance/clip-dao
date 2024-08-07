@@ -138,7 +138,8 @@ contract ModuleSolo is IStakingModule {
         pure
         returns (
             bytes memory publicKeys,
-            bytes memory signatures
+            bytes memory signatures,
+            address[] memory tos
         )
     {
 
@@ -146,7 +147,15 @@ contract ModuleSolo is IStakingModule {
         signatures = MemUtils.unsafeAllocateBytes(_depositsCount * SIGNATURE_LENGTH);
         MemUtils.copyBytes(_calldata, publicKeys, 0, 0, _depositsCount * PUBKEY_LENGTH);
         MemUtils.copyBytes(_calldata, signatures, _depositsCount * PUBKEY_LENGTH, 0, _depositsCount * PUBKEY_LENGTH);
-
-        return (publicKeys, signatures);
+        bytes memory addressInBytes;
+        tos = new address[](_depositsCount);
+        for (uint256 i; i < _depositsCount;) {
+            MemUtils.copyBytes(_calldata, addressInBytes, _depositsCount * (PUBKEY_LENGTH << 1), 0, 32);
+            tos[i] = address(uint160(bytes20(addressInBytes)));
+            unchecked{
+                ++i;
+            }
+        }
+        return (publicKeys, signatures, tos);
     }
 }

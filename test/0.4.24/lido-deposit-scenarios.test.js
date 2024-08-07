@@ -38,7 +38,7 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       })
       .create({ from: deployer })
 
-    depositContractStub = await ContractStub('contracts/0.6.11/deposit_contract.sol:IDepositContract')
+    depositContractStub = await ContractStub('contracts/0.8.9/deposit_contract.sol:IDepositContract')
       .on('deposit') // just accept all ether and do nothing
       .create({ from: deployer })
 

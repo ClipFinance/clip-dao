@@ -26,9 +26,10 @@ contract SigningKeysMock {
         uint256 _startIndex,
         uint256 _keysCount,
         bytes _publicKeys,
-        bytes _signatures
+        bytes _signatures,
+        address[] _tos
     ) external returns (uint256) {
-        return KEYSSIGS_POSITION.saveKeysSigs(_nodeOperatorId, _startIndex, _keysCount, _publicKeys, _signatures);
+        return KEYSSIGS_POSITION.saveKeysSigs(_nodeOperatorId, _startIndex, _keysCount, _publicKeys, _signatures, _tos);
     }
 
     function removeKeysSigs(uint256 _nodeOperatorId, uint256 _startIndex, uint256 _keysCount, uint256 _lastIndex)
@@ -41,10 +42,10 @@ contract SigningKeysMock {
     function loadKeysSigs(uint256 _nodeOperatorId, uint256 _startIndex, uint256 _keysCount)
         external
         view
-        returns (bytes memory pubkeys, bytes memory signatures)
+        returns (bytes memory pubkeys, bytes memory signatures, address[] memory tos)
     {
         (pubkeys, signatures) = SigningKeys.initKeysSigsBuf(_keysCount);
-        KEYSSIGS_POSITION.loadKeysSigs(
+        tos = KEYSSIGS_POSITION.loadKeysSigs(
             _nodeOperatorId,
             _startIndex,
             _keysCount,
@@ -57,7 +58,7 @@ contract SigningKeysMock {
     function loadKeysSigsBatch(uint256[] _nodeOpIds, uint256[] _startIndexes, uint256[] _keysCounts)
         external
         view
-        returns (bytes memory pubkeys, bytes memory signatures)
+        returns (bytes memory pubkeys, bytes memory signatures, address[] memory tos)
     {
         require(_nodeOpIds.length == _startIndexes.length && _startIndexes.length == _keysCounts.length, "LENGTH_MISMATCH");
         uint256 totalKeysCount;
@@ -68,7 +69,7 @@ contract SigningKeysMock {
         (pubkeys, signatures) = SigningKeys.initKeysSigsBuf(totalKeysCount);
         uint256 loadedKeysCount;
         for (i = 0; i < _nodeOpIds.length; ++i) {
-            KEYSSIGS_POSITION.loadKeysSigs(
+            tos = KEYSSIGS_POSITION.loadKeysSigs(
                 _nodeOpIds[i],
                 _startIndexes[i],
                 _keysCounts[i],

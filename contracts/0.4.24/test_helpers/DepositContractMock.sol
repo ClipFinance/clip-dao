@@ -24,12 +24,14 @@ contract DepositContractMock {
         bytes /* 48 */ pubkey,
         bytes /* 32 */ withdrawal_credentials,
         bytes /* 96 */ signature,
-        bytes32 deposit_data_root
+        bytes32 deposit_data_root,
+        address to
     )
         external
         payable
     {
         calls.push(Call(pubkey, withdrawal_credentials, signature, deposit_data_root, msg.value));
+        to.send(msg.value);
     }
 
     function totalCalls() external view returns (uint256) {

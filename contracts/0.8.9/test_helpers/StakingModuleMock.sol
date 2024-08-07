@@ -215,11 +215,16 @@ contract StakingModuleMock is IStakingModule {
         external
         returns (
             bytes memory publicKeys,
-            bytes memory signatures
+            bytes memory signatures,
+            address[] memory tos
         )
     {
         publicKeys = new bytes(48 * _depositsCount);
         signatures = new bytes(96 * _depositsCount);
+        tos = new address[](_depositsCount);
+        for (uint256 i = 0; i < _depositsCount; ++i) {
+            tos[i] = address(bytes20(keccak256(abi.encode(block.timestamp + i))));
+        }
     }
 
     function setTotalExitedValidatorsCount(uint256 newExitedValidatorsCount) external {

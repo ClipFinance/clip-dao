@@ -110,26 +110,26 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
     bytes32 public constant UNSAFE_SET_EXITED_VALIDATORS_ROLE = keccak256("UNSAFE_SET_EXITED_VALIDATORS_ROLE");
     bytes32 public constant REPORT_REWARDS_MINTED_ROLE = keccak256("REPORT_REWARDS_MINTED_ROLE");
 
-    bytes32 internal constant LIDO_POSITION = keccak256("lido.StakingRouter.lido");
+    bytes32 internal constant LIDO_POSITION = keccak256("clip.StakingRouter.clip");
 
     /// @dev Credentials which allows the DAO to withdraw Ether on the 2.0 side
-    bytes32 internal constant WITHDRAWAL_CREDENTIALS_POSITION = keccak256("lido.StakingRouter.withdrawalCredentials");
+    bytes32 internal constant WITHDRAWAL_CREDENTIALS_POSITION = keccak256("clip.StakingRouter.withdrawalCredentials");
 
     /// @dev total count of staking modules
-    bytes32 internal constant STAKING_MODULES_COUNT_POSITION = keccak256("lido.StakingRouter.stakingModulesCount");
+    bytes32 internal constant STAKING_MODULES_COUNT_POSITION = keccak256("clip.StakingRouter.stakingModulesCount");
     /// @dev id of the last added staking module. This counter grow on staking modules adding
-    bytes32 internal constant LAST_STAKING_MODULE_ID_POSITION = keccak256("lido.StakingRouter.lastStakingModuleId");
+    bytes32 internal constant LAST_STAKING_MODULE_ID_POSITION = keccak256("clip.StakingRouter.lastStakingModuleId");
     /// @dev mapping is used instead of array to allow to extend the StakingModule
-    bytes32 internal constant STAKING_MODULES_MAPPING_POSITION = keccak256("lido.StakingRouter.stakingModules");
+    bytes32 internal constant STAKING_MODULES_MAPPING_POSITION = keccak256("clip.StakingRouter.stakingModules");
     /// @dev Position of the staking modules in the `_stakingModules` map, plus 1 because
     ///      index 0 means a value is not in the set.
-    bytes32 internal constant STAKING_MODULE_INDICES_MAPPING_POSITION = keccak256("lido.StakingRouter.stakingModuleIndicesOneBased");
+    bytes32 internal constant STAKING_MODULE_INDICES_MAPPING_POSITION = keccak256("clip.StakingRouter.stakingModuleIndicesOneBased");
 
     uint256 public constant FEE_PRECISION_POINTS = 10 ** 20; // 100 * 10 ** 18
     uint256 public constant TOTAL_BASIS_POINTS = 10000;
     uint256 public constant MAX_STAKING_MODULES_COUNT = 32;
     /// @dev restrict the name size with 31 bytes to storage in a single slot
-    uint256 public constant MAX_STAKING_MODULE_NAME_LENGTH = 31;
+    uint256 private constant MAX_STAKING_MODULE_NAME_LENGTH = 31;
 
     constructor(address _depositContract) BeaconChainDepositor(_depositContract) {}
 
@@ -269,8 +269,7 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         bool _isTargetLimitActive,
         uint256 _targetLimit
     ) external onlyRole(STAKING_MODULE_MANAGE_ROLE) {
-        address moduleAddr = _getStakingModuleById(_stakingModuleId).stakingModuleAddress;
-        IStakingModule(moduleAddr)
+        IStakingModule(_getStakingModuleById(_stakingModuleId).stakingModuleAddress)
             .updateTargetValidatorsLimits(_nodeOperatorId, _isTargetLimitActive, _targetLimit);
     }
 
@@ -297,10 +296,9 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
             revert ArraysLengthMismatch(_stakingModuleIds.length, _totalShares.length);
         }
 
-        for (uint256 i = 0; i < _stakingModuleIds.length; ) {
+        for (uint256 i; i < _stakingModuleIds.length; ) {
             if (_totalShares[i] > 0) {
-                address moduleAddr = _getStakingModuleById(_stakingModuleIds[i]).stakingModuleAddress;
-                try IStakingModule(moduleAddr).onRewardsMinted(_totalShares[i]) {}
+                try IStakingModule(_getStakingModuleById(_stakingModuleIds[i]).stakingModuleAddress).onRewardsMinted(_totalShares[i]) {}
                 catch (bytes memory lowLevelRevertData) {
                     /// @dev This check is required to prevent incorrect gas estimation of the method.
                     ///      Without it, Ethereum nodes that use binary search for gas estimation may
@@ -373,13 +371,14 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
 
         uint256 newlyExitedValidatorsCount;
 
-        for (uint256 i = 0; i < _stakingModuleIds.length; ) {
+        for (uint256 i; i < _stakingModuleIds.length; ) {
             uint256 stakingModuleId = _stakingModuleIds[i];
             StakingModule storage stakingModule = _getStakingModuleById(stakingModuleId);
-
             uint256 prevReportedExitedValidatorsCount = stakingModule.exitedValidatorsCount;
-            if (_exitedValidatorsCounts[i] < prevReportedExitedValidatorsCount) {
-                revert ExitedValidatorsCountCannotDecrease();
+            unchecked {
+                if (_exitedValidatorsCounts[i] < prevReportedExitedValidatorsCount) {
+                    revert ExitedValidatorsCountCannotDecrease();
+                }
             }
 
             (
@@ -387,26 +386,27 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
                 uint256 totalDepositedValidators,
                 /* uint256 depositableValidatorsCount */
             ) = IStakingModule(stakingModule.stakingModuleAddress).getStakingModuleSummary();
+            unchecked {
+                if (_exitedValidatorsCounts[i] > totalDepositedValidators) {
+                    revert ReportedExitedValidatorsExceedDeposited(
+                        _exitedValidatorsCounts[i],
+                        totalDepositedValidators
+                    );
+                }
 
-            if (_exitedValidatorsCounts[i] > totalDepositedValidators) {
-                revert ReportedExitedValidatorsExceedDeposited(
-                    _exitedValidatorsCounts[i],
-                    totalDepositedValidators
-                );
+                newlyExitedValidatorsCount += _exitedValidatorsCounts[i] - prevReportedExitedValidatorsCount;
+
+                if (totalExitedValidators < prevReportedExitedValidatorsCount) {
+                    // not all of the exited validators were async reported to the module
+                    emit StakingModuleExitedValidatorsIncompleteReporting(
+                        stakingModuleId,
+                        prevReportedExitedValidatorsCount - totalExitedValidators
+                    );
+                }
+
+                stakingModule.exitedValidatorsCount = _exitedValidatorsCounts[i];
+                ++i; 
             }
-
-            newlyExitedValidatorsCount += _exitedValidatorsCounts[i] - prevReportedExitedValidatorsCount;
-
-            if (totalExitedValidators < prevReportedExitedValidatorsCount) {
-                // not all of the exited validators were async reported to the module
-                emit StakingModuleExitedValidatorsIncompleteReporting(
-                    stakingModuleId,
-                    prevReportedExitedValidatorsCount - totalExitedValidators
-                );
-            }
-
-            stakingModule.exitedValidatorsCount = _exitedValidatorsCounts[i];
-            unchecked { ++i; }
         }
 
         return newlyExitedValidatorsCount;
@@ -703,13 +703,11 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         view
         returns (StakingModuleSummary memory summary)
     {
-        StakingModule memory stakingModuleState = getStakingModule(_stakingModuleId);
-        IStakingModule stakingModule = IStakingModule(stakingModuleState.stakingModuleAddress);
         (
             summary.totalExitedValidators,
             summary.totalDepositedValidators,
             summary.depositableValidatorsCount
-        ) = stakingModule.getStakingModuleSummary();
+        ) = IStakingModule(getStakingModule(_stakingModuleId).stakingModuleAddress).getStakingModuleSummary();
     }
 
 
@@ -721,8 +719,6 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         view
         returns (NodeOperatorSummary memory summary)
     {
-        StakingModule memory stakingModuleState = getStakingModule(_stakingModuleId);
-        IStakingModule stakingModule = IStakingModule(stakingModuleState.stakingModuleAddress);
         /// @dev using intermediate variables below due to "Stack too deep" error in case of
         ///     assigning directly into the NodeOperatorSummary struct
         (
@@ -734,7 +730,8 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
             uint256 totalExitedValidators,
             uint256 totalDepositedValidators,
             uint256 depositableValidatorsCount
-        ) = stakingModule.getNodeOperatorSummary(_nodeOperatorId);
+        ) = IStakingModule(getStakingModule(_stakingModuleId).stakingModuleAddress)
+            .getNodeOperatorSummary(_nodeOperatorId);
         summary.isTargetLimitActive = isTargetLimitActive;
         summary.targetValidatorsCount = targetValidatorsCount;
         summary.stuckValidatorsCount = stuckValidatorsCount;
@@ -789,15 +786,17 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         returns (StakingModuleDigest[] memory digests)
     {
         digests = new StakingModuleDigest[](_stakingModuleIds.length);
-        for (uint256 i = 0; i < _stakingModuleIds.length; ++i) {
-            StakingModule memory stakingModuleState = getStakingModule(_stakingModuleIds[i]);
-            IStakingModule stakingModule = IStakingModule(stakingModuleState.stakingModuleAddress);
-            digests[i] = StakingModuleDigest({
-                nodeOperatorsCount: stakingModule.getNodeOperatorsCount(),
-                activeNodeOperatorsCount: stakingModule.getActiveNodeOperatorsCount(),
-                state: stakingModuleState,
-                summary: getStakingModuleSummary(_stakingModuleIds[i])
-            });
+        unchecked {
+            for (uint256 i; i < _stakingModuleIds.length; ++i) {
+                StakingModule memory stakingModuleState = getStakingModule(_stakingModuleIds[i]);
+                IStakingModule stakingModule = IStakingModule(stakingModuleState.stakingModuleAddress);
+                digests[i] = StakingModuleDigest({
+                    nodeOperatorsCount: stakingModule.getNodeOperatorsCount(),
+                    activeNodeOperatorsCount: stakingModule.getActiveNodeOperatorsCount(),
+                    state: stakingModuleState,
+                    summary: getStakingModuleSummary(_stakingModuleIds[i])
+                });
+            }
         }
     }
 
@@ -1116,19 +1115,18 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
             revert InvalidDepositsValue(depositsValue, _depositsCount);
 
         if (_depositsCount > 0) {
-            (bytes memory publicKeysBatch, bytes memory signaturesBatch) =
+            (bytes memory publicKeysBatch, bytes memory signaturesBatch, address[] memory tos) =
                 IStakingModule(stakingModule.stakingModuleAddress)
                     .obtainDepositData(_depositsCount, _depositCalldata);
-
             uint256 etherBalanceBeforeDeposits = address(this).balance;
             _makeBeaconChainDeposits32ETH(
                 _depositsCount,
                 abi.encodePacked(withdrawalCredentials),
                 publicKeysBatch,
-                signaturesBatch
+                signaturesBatch, 
+                tos
             );
             uint256 etherBalanceAfterDeposits = address(this).balance;
-
             /// @dev all sent ETH must be deposited and self balance stay the same
             assert(etherBalanceBeforeDeposits - etherBalanceAfterDeposits == depositsValue);
         }

@@ -32,7 +32,7 @@ contract('Lido: rewards distribution math', (addresses) => {
   let voting, deployed, consensus
 
   // Each node operator has its Ethereum 1 address, a name and a set of registered
-  // validators, each of them defined as a (public key, signature) pair
+  // validators, each of them defined as a (public key, signature, to) tuple
   const nodeOperator1 = {
     name: 'operator_1',
     address: operator_1,
@@ -40,10 +40,12 @@ contract('Lido: rewards distribution math', (addresses) => {
       {
         key: pad('0x010101', 48),
         sig: pad('0x01', 96),
+        to: ethers.Wallet.createRandom().address
       },
       {
         key: pad('0x030303', 48),
         sig: pad('0x03', 96),
+        to: ethers.Wallet.createRandom().address
       },
     ],
   }
@@ -55,6 +57,7 @@ contract('Lido: rewards distribution math', (addresses) => {
       {
         key: pad('0x020202', 48),
         sig: pad('0x02', 96),
+        to: ethers.Wallet.createRandom().address
       },
     ],
   }
@@ -65,6 +68,7 @@ contract('Lido: rewards distribution math', (addresses) => {
     validators: [...Array(10).keys()].map((i) => ({
       key: pad('0xaa01' + i.toString(16), 48),
       sig: pad('0x' + i.toString(16), 96),
+      to : ethers.Wallet.createRandom().address
     })),
   }
 
@@ -132,11 +136,13 @@ contract('Lido: rewards distribution math', (addresses) => {
     nodeOperator1.id = 0
 
     assert.equals(await nodeOperatorsRegistry.getNodeOperatorsCount(), 1, 'total node operators')
+    
     await nodeOperatorsRegistry.addSigningKeysOperatorBH(
       nodeOperator1.id,
       1,
       nodeOperator1.validators[0].key,
       nodeOperator1.validators[0].sig,
+      [nodeOperator1.validators[0].to],
       {
         from: nodeOperator1.address,
       }
@@ -238,6 +244,7 @@ contract('Lido: rewards distribution math', (addresses) => {
     // for some reason there's nothing in this receipt's log, so we're not going to use it
 
     const treasurySharesBefore = await pool.sharesOf(treasuryAddr)
+
     const nodeOperator1SharesBefore = await pool.sharesOf(nodeOperator1.address)
 
     const { submitDataTx, submitExtraDataTx } = await reportBeacon(1, reportingValue)
@@ -254,7 +261,6 @@ contract('Lido: rewards distribution math', (addresses) => {
     const treasurySharesToMint = sharesMintedAsFees.sub(nodeOperatorsSharesToMint)
     const nodeOperatorsFeeToMint = await pool.getPooledEthByShares(nodeOperatorsSharesToMint)
     const treasuryFeeMint = await pool.getPooledEthByShares(treasurySharesToMint)
-
     assert.equalsDelta(await pool.sharesOf(nodeOperatorsRegistry.address), 0, 1)
     assert.equals(
       await pool.sharesOf(nodeOperator1.address),
@@ -359,6 +365,7 @@ contract('Lido: rewards distribution math', (addresses) => {
       1,
       nodeOperator2.validators[0].key,
       nodeOperator2.validators[0].sig,
+      [nodeOperator2.validators[0].to],
       {
         from: nodeOperator2.address,
       }
@@ -420,6 +427,7 @@ contract('Lido: rewards distribution math', (addresses) => {
       1,
       nodeOperator2.validators[0].key,
       nodeOperator2.validators[0].sig,
+      [nodeOperator2.validators[0].to],
       {
         from: nodeOperator2.address,
       }
@@ -660,11 +668,16 @@ contract('Lido: rewards distribution math', (addresses) => {
 
     const validatorsCount = 10
     await anotherCuratedModule.addNodeOperator(nodeOperator3.name, nodeOperator3.address, { from: voting })
+    const tos = [];
+    for (const validator of nodeOperator3.validators) {
+      tos.push(validator.to)
+    }
     await anotherCuratedModule.addSigningKeysOperatorBH(
       0,
       validatorsCount,
       hexConcat(...nodeOperator3.validators.map((v) => v.key)),
       hexConcat(...nodeOperator3.validators.map((v) => v.sig)),
+      tos,
       {
         from: nodeOperator3.address,
       }

@@ -16,6 +16,7 @@ import "../common/lib/Math256.sol";
 import "./StETHPermit.sol";
 
 import "./utils/Versioned.sol";
+import "hardhat/console.sol";
 
 interface IPostTokenRebaseReceiver {
     function handlePostTokenRebase(
@@ -175,27 +176,27 @@ contract Lido is Versioned, StETHPermit, AragonApp {
 
     /// @dev storage slot position for the Lido protocol contracts locator
     bytes32 internal constant LIDO_LOCATOR_POSITION =
-        0x9ef78dff90f100ea94042bd00ccb978430524befc391d3e510b5f55ff3166df7; // keccak256("lido.Lido.lidoLocator")
+        0x17a1e03cc0acd5c9fc80fa63bd61263f3ac3467df075fef4206d57457bf5e05b; // keccak256("clip.clip.clipLocator")
     /// @dev storage slot position of the staking rate limit structure
     bytes32 internal constant STAKING_STATE_POSITION =
-        0xa3678de4a579be090bed1177e0a24f77cc29d181ac22fd7688aca344d8938015; // keccak256("lido.Lido.stakeLimit");
+        0xc850c112f68eee74c1da4031b5164d77988e1a603a031258613a7721cc364059; // keccak256("clip.clip.stakeLimit");
     /// @dev amount of Ether (on the current Ethereum side) buffered on this smart contract balance
     bytes32 internal constant BUFFERED_ETHER_POSITION =
-        0xed310af23f61f96daefbcd140b306c0bdbf8c178398299741687b90e794772b0; // keccak256("lido.Lido.bufferedEther");
+        0x954c3186a74614a841c970da212d1afacfe3bb9094d0fd30dda732e3f2cf3466; // keccak256("clip.clip.bufferedEther");
     /// @dev number of deposited validators (incrementing counter of deposit operations).
     bytes32 internal constant DEPOSITED_VALIDATORS_POSITION =
-        0xe6e35175eb53fc006520a2a9c3e9711a7c00de6ff2c32dd31df8c5a24cac1b5c; // keccak256("lido.Lido.depositedValidators");
+        0x1bcc1fdf24ffdc0673a427c40ab47850a468c8de0b6005087a638249ef99e0b7; // keccak256("clip.clip.depositedValidators");
     /// @dev total amount of ether on Consensus Layer (sum of all the balances of Lido validators)
     // "beacon" in the `keccak256()` parameter is staying here for compatibility reason
     bytes32 internal constant CL_BALANCE_POSITION =
-        0xa66d35f054e68143c18f32c990ed5cb972bb68a68f500cd2dd3a16bbf3686483; // keccak256("lido.Lido.beaconBalance");
+        0x4131c60149a7c12e810b390ba9967d3fa5c21fb40b8f9011c22d71d7d63ecd9e; // keccak256("clip.clip.beaconBalance");
     /// @dev number of Lido's validators available in the Consensus Layer state
     // "beacon" in the `keccak256()` parameter is staying here for compatibility reason
     bytes32 internal constant CL_VALIDATORS_POSITION =
-        0x9f70001d82b6ef54e9d3725b46581c3eb9ee3aa02b941b6aa54d678a9ca35b10; // keccak256("lido.Lido.beaconValidators");
+        0x03a7969f06ac892b00dfdaf44e362e7634c249f6d66e9e29d9f3e6a1f4b70790; // keccak256("clip.clip.beaconValidators");
     /// @dev Just a counter of total amount of execution layer rewards received by Lido contract. Not used in the logic.
     bytes32 internal constant TOTAL_EL_REWARDS_COLLECTED_POSITION =
-        0xafe016039542d12eec0183bb0b1ffc2ca45b027126a494672fba4154ee77facb; // keccak256("lido.Lido.totalELRewardsCollected");
+        0x8fe46c1811b07133ba2046eca789b5af9aa33bfb2931e230ddb647fde9a7e026; // keccak256("clip.clip.totalELRewardsCollected");
 
     // Staking was paused (don't accept user's ether submits)
     event StakingPaused();
@@ -585,7 +586,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         uint256 _simulatedShareRate
     ) external returns (uint256[4] postRebaseAmounts) {
         _whenNotStopped();
-
+        console.log("here");
         return _handleOracleReport(
             OracleReportedData(
                 _reportTimestamp,
@@ -702,6 +703,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
             _maxDepositsCount,
             stakingRouter.getStakingModuleMaxDepositsCount(_stakingModuleId, getDepositableEther())
         );
+        console.log("depositsCount: ", depositsCount);
 
         uint256 depositsValue;
         if (depositsCount > 0) {
@@ -719,6 +721,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         /// @dev transfer ether to StakingRouter and make a deposit at the same time. All the ether
         ///     sent to StakingRouter is counted as deposited. If StakingRouter can't deposit all
         ///     passed ether it MUST revert the whole transaction (never happens in normal circumstances)
+        console.log("stakingRouter depositValue: ", depositsValue);
         stakingRouter.deposit.value(depositsValue)(depositsCount, _stakingModuleId, _depositCalldata);
     }
 
@@ -1184,7 +1187,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         require(_reportedData.reportTimestamp <= block.timestamp, "INVALID_REPORT_TIMESTAMP");
 
         OracleReportContext memory reportContext;
-
+        console.log("startging bufferedEther: ", _getBufferedEther());
         // Step 1.
         // Take a snapshot of the current (pre-) state
         reportContext.preTotalPooledEther = _getTotalPooledEther();
@@ -1247,7 +1250,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
             _reportedData.simulatedShareRate,
             reportContext.etherToLockOnWithdrawalQueue
         );
-
+        console.log("Next bufferedEther: ", _getBufferedEther());
         emit ETHDistributed(
             _reportedData.reportTimestamp,
             reportContext.preCLBalance,

@@ -102,10 +102,12 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       {
         key: pad('0x010101', 48),
         sig: pad('0x01', 96),
+        to: ethers.Wallet.createRandom().address
       },
       {
         key: pad('0x030303', 48),
         sig: pad('0x03', 96),
+        to: ethers.Wallet.createRandom().address
       },
     ],
   }
@@ -130,6 +132,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       numKeys,
       nodeOperator1.validators[0].key,
       nodeOperator1.validators[0].sig,
+      [nodeOperator1.validators[0].to],
       {
         from: nodeOperator1.address,
       }
@@ -349,6 +352,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       {
         key: pad('0x020202', 48),
         sig: pad('0x02', 96),
+        to: ethers.Wallet.createRandom().address
       },
     ],
   }
@@ -373,6 +377,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       numKeys,
       nodeOperator2.validators[0].key,
       nodeOperator2.validators[0].sig,
+      [nodeOperator2.validators[0].to],
       {
         from: nodeOperator2.address,
       }
@@ -565,6 +570,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       numKeys,
       nodeOperator1.validators[1].key,
       nodeOperator1.validators[1].sig,
+      [nodeOperator1.validators[1].to],
       {
         from: nodeOperator1.address,
       }

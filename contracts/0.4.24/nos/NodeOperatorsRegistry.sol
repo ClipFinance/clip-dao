@@ -64,14 +64,14 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     //
     // ACL
     //
-    // bytes32 public constant MANAGE_SIGNING_KEYS = keccak256("MANAGE_SIGNING_KEYS");
-    bytes32 public constant MANAGE_SIGNING_KEYS = 0x75abc64490e17b40ea1e66691c3eb493647b24430b358bd87ec3e5127f1621ee;
-    // bytes32 public constant SET_NODE_OPERATOR_LIMIT_ROLE = keccak256("SET_NODE_OPERATOR_LIMIT_ROLE");
-    bytes32 public constant SET_NODE_OPERATOR_LIMIT_ROLE = 0x07b39e0faf2521001ae4e58cb9ffd3840a63e205d288dc9c93c3774f0d794754;
-    // bytes32 public constant ACTIVATE_NODE_OPERATOR_ROLE = keccak256("MANAGE_NODE_OPERATOR_ROLE");
-    bytes32 public constant MANAGE_NODE_OPERATOR_ROLE = 0x78523850fdd761612f46e844cf5a16bda6b3151d6ae961fd7e8e7b92bfbca7f8;
-    // bytes32 public constant STAKING_ROUTER_ROLE = keccak256("STAKING_ROUTER_ROLE");
-    bytes32 public constant STAKING_ROUTER_ROLE = 0xbb75b874360e0bfd87f964eadd8276d8efb7c942134fc329b513032d0803e0c6;
+    // bytes32 public constant MANAGE_SIGNING_KEYS = keccak256("CLIP_MANAGE_SIGNING_KEYS");
+    bytes32 public constant MANAGE_SIGNING_KEYS = 0xbe2a7effcdbd511ec55384c07d58195cbde6e3b8d5f7ed171ca16b34601c1409;
+    // bytes32 public constant SET_NODE_OPERATOR_LIMIT_ROLE = keccak256("CLIP_SET_NODE_OPERATOR_LIMIT_ROLE");
+    bytes32 public constant SET_NODE_OPERATOR_LIMIT_ROLE = 0x360f08a849f63e614b6ad8521099e28299c798c0c2fcf4264b5fdfee8242594b;
+    // bytes32 public constant ACTIVATE_NODE_OPERATOR_ROLE = keccak256("CLIP_MANAGE_NODE_OPERATOR_ROLE");
+    bytes32 public constant MANAGE_NODE_OPERATOR_ROLE = 0xcfdbd110c98e874c1ab626ddc508ddbb470cf1f64a4b25ca4a5f750477829cbf;
+    // bytes32 public constant STAKING_ROUTER_ROLE = keccak256("CLIP_STAKING_ROUTER_ROLE");
+    bytes32 public constant STAKING_ROUTER_ROLE = 0xed9ca512af7ad0357b1b8b1ef2804c5ef8b5eaf0b80df593a6818468e2be32a1;
 
     //
     // CONSTANTS
@@ -126,32 +126,32 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     //
     // UNSTRUCTURED STORAGE POSITIONS
     //
-    // bytes32 internal constant SIGNING_KEYS_MAPPING_NAME = keccak256("lido.NodeOperatorsRegistry.signingKeysMappingName");
-    bytes32 internal constant SIGNING_KEYS_MAPPING_NAME = 0xeb2b7ad4d8ce5610cfb46470f03b14c197c2b751077c70209c5d0139f7c79ee9;
+    // bytes32 internal constant SIGNING_KEYS_MAPPING_NAME = keccak256("clip.NodeOperatorsRegistry.signingKeysMappingName");
+    bytes32 internal constant SIGNING_KEYS_MAPPING_NAME = 0x6a81870e9ba014f2ad3546578c3f106ee22008fe032ca6b4be59d4b2131090b1;
 
-    // bytes32 internal constant LIDO_LOCATOR_POSITION = keccak256("lido.NodeOperatorsRegistry.lidoLocator");
-    bytes32 internal constant LIDO_LOCATOR_POSITION = 0xfb2059fd4b64256b64068a0f57046c6d40b9f0e592ba8bcfdf5b941910d03537;
+    // bytes32 internal constant CLIP_LOCATOR_POSITION = keccak256("clip.NodeOperatorsRegistry.lidoLocator");
+    bytes32 internal constant CLIP_LOCATOR_POSITION = 0x9da8813921555db04e667a1a55d27274dc34d718dda4d9955465bf58cfb9b524;
 
     /// @dev Total number of operators
-    // bytes32 internal constant TOTAL_OPERATORS_COUNT_POSITION = keccak256("lido.NodeOperatorsRegistry.totalOperatorsCount");
+    // bytes32 internal constant TOTAL_OPERATORS_COUNT_POSITION = keccak256("clip.NodeOperatorsRegistry.totalOperatorsCount");
     bytes32 internal constant TOTAL_OPERATORS_COUNT_POSITION =
-        0xe2a589ae0816b289a9d29b7c085f8eba4b5525accca9fa8ff4dba3f5a41287e8;
+        0x60bb3938b21c2142b1a7e3379b6aeff85e03acc1983affe5e186a9f628b01d20;
 
     /// @dev Cached number of active operators
-    // bytes32 internal constant ACTIVE_OPERATORS_COUNT_POSITION = keccak256("lido.NodeOperatorsRegistry.activeOperatorsCount");
+    // bytes32 internal constant ACTIVE_OPERATORS_COUNT_POSITION = keccak256("clip.NodeOperatorsRegistry.activeOperatorsCount");
     bytes32 internal constant ACTIVE_OPERATORS_COUNT_POSITION =
-        0x6f5220989faafdc182d508d697678366f4e831f5f56166ad69bfc253fc548fb1;
+        0x9bd39e9614654574a78eef9997d64cc5e97f9b14a638b9c2dbfc19c4b3acc2d2;
 
     /// @dev link to the index of operations with keys
-    // bytes32 internal constant KEYS_OP_INDEX_POSITION = keccak256("lido.NodeOperatorsRegistry.keysOpIndex");
-    bytes32 internal constant KEYS_OP_INDEX_POSITION = 0xcd91478ac3f2620f0776eacb9c24123a214bcb23c32ae7d28278aa846c8c380e;
+    // bytes32 internal constant KEYS_OP_INDEX_POSITION = keccak256("clip.NodeOperatorsRegistry.keysOpIndex");
+    bytes32 internal constant KEYS_OP_INDEX_POSITION = 0x6d8a33f23bee3169d7095408016141fc9b176d9481c6af51b95964e3880ea8ed;
 
     /// @dev module type
-    // bytes32 internal constant TYPE_POSITION = keccak256("lido.NodeOperatorsRegistry.type");
-    bytes32 internal constant TYPE_POSITION = 0xbacf4236659a602d72c631ba0b0d67ec320aaf523f3ae3590d7faee4f42351d0;
+    // bytes32 internal constant TYPE_POSITION = keccak256("clip.NodeOperatorsRegistry.type");
+    bytes32 internal constant TYPE_POSITION = 0x5bfa17fa6e5b9c9a855fc1fbb1f88e963e46a804554708afa54d63f9efcc0c63;
 
-    // bytes32 internal constant STUCK_PENALTY_DELAY_POSITION = keccak256("lido.NodeOperatorsRegistry.stuckPenaltyDelay");
-    bytes32 internal constant STUCK_PENALTY_DELAY_POSITION = 0x8e3a1f3826a82c1116044b334cae49f3c3d12c3866a1c4b18af461e12e58a18e;
+    // bytes32 internal constant STUCK_PENALTY_DELAY_POSITION = keccak256("clip.NodeOperatorsRegistry.stuckPenaltyDelay");
+    bytes32 internal constant STUCK_PENALTY_DELAY_POSITION = 0x3a60b7fb8d54edc88cc919521ff7ee7e4d5fac2441b2a2817f3ec7385e227753;
 
     //
     // DATA TYPES
@@ -217,36 +217,33 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         _initialize_v2(_locator, _type, _stuckPenaltyDelay);
 
         uint256 totalOperators = getNodeOperatorsCount();
-        Packed64x4.Packed memory signingKeysStats;
-        Packed64x4.Packed memory operatorTargetStats;
+        //Packed64x4.Packed memory signingKeysStats;
+        //Packed64x4.Packed memory operatorTargetStats;
         Packed64x4.Packed memory summarySigningKeysStats = Packed64x4.Packed(0);
-        uint256 vettedSigningKeysCountBefore;
-        uint256 totalSigningKeysCount;
-        uint256 depositedSigningKeysCount;
+        //uint256 vettedSigningKeysCountBefore;
+        //uint256 totalSigningKeysCount;
+        //uint256 depositedSigningKeysCount;
         for (uint256 nodeOperatorId; nodeOperatorId < totalOperators; ++nodeOperatorId) {
-            signingKeysStats = _loadOperatorSigningKeysStats(nodeOperatorId);
-            vettedSigningKeysCountBefore = signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET);
-            totalSigningKeysCount = signingKeysStats.get(TOTAL_KEYS_COUNT_OFFSET);
-            depositedSigningKeysCount = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
+            Packed64x4.Packed memory signingKeysStats = _loadOperatorSigningKeysStats(nodeOperatorId);
+            uint256 vettedSigningKeysCountBefore = signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET);
+            uint256 totalSigningKeysCount = signingKeysStats.get(TOTAL_KEYS_COUNT_OFFSET);
+            uint256 depositedSigningKeysCount = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
 
-            uint256 vettedSigningKeysCountAfter;
-            if (!_nodeOperators[nodeOperatorId].active) {
+            uint256 vettedSigningKeysCountAfter = !_nodeOperators[nodeOperatorId].active ?
                 // trim vetted signing keys count when node operator is not active
-                vettedSigningKeysCountAfter = depositedSigningKeysCount;
-            } else {
-                vettedSigningKeysCountAfter = Math256.min(
+                depositedSigningKeysCount :
+                Math256.min(
                     totalSigningKeysCount,
                     Math256.max(depositedSigningKeysCount, vettedSigningKeysCountBefore)
                 );
-            }
-
+            
             if (vettedSigningKeysCountBefore != vettedSigningKeysCountAfter) {
                 signingKeysStats.set(TOTAL_VETTED_KEYS_COUNT_OFFSET, vettedSigningKeysCountAfter);
                 _saveOperatorSigningKeysStats(nodeOperatorId, signingKeysStats);
                 emit VettedSigningKeysCountChanged(nodeOperatorId, vettedSigningKeysCountAfter);
             }
 
-            operatorTargetStats = _loadOperatorTargetValidatorsStats(nodeOperatorId);
+            Packed64x4.Packed memory operatorTargetStats = _loadOperatorTargetValidatorsStats(nodeOperatorId);
             operatorTargetStats.set(MAX_VALIDATORS_COUNT_OFFSET, vettedSigningKeysCountAfter);
             _saveOperatorTargetValidatorsStats(nodeOperatorId, operatorTargetStats);
 
@@ -265,7 +262,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
 
     function _initialize_v2(address _locator, bytes32 _type, uint256 _stuckPenaltyDelay) internal {
         _onlyNonZeroAddress(_locator);
-        LIDO_LOCATOR_POSITION.setStorageAddress(_locator);
+        CLIP_LOCATOR_POSITION.setStorageAddress(_locator);
         TYPE_POSITION.setStorageBytes32(_type);
 
         _setContractVersion(2);
@@ -296,8 +293,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
 
         NodeOperator storage operator = _nodeOperators[id];
 
-        uint256 activeOperatorsCount = getActiveNodeOperatorsCount();
-        ACTIVE_OPERATORS_COUNT_POSITION.setStorageUint256(activeOperatorsCount + 1);
+        ACTIVE_OPERATORS_COUNT_POSITION.setStorageUint256(getActiveNodeOperatorsCount() + 1);
 
         operator.active = true;
         operator.name = _name;
@@ -330,19 +326,17 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
 
         _onlyCorrectNodeOperatorState(getNodeOperatorIsActive(_nodeOperatorId));
 
-        uint256 activeOperatorsCount = getActiveNodeOperatorsCount();
-        ACTIVE_OPERATORS_COUNT_POSITION.setStorageUint256(activeOperatorsCount.sub(1));
+        ACTIVE_OPERATORS_COUNT_POSITION.setStorageUint256(getActiveNodeOperatorsCount().sub(1));
 
         _nodeOperators[_nodeOperatorId].active = false;
 
         emit NodeOperatorActiveSet(_nodeOperatorId, false);
 
         Packed64x4.Packed memory signingKeysStats = _loadOperatorSigningKeysStats(_nodeOperatorId);
-        uint256 vettedSigningKeysCount = signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET);
         uint256 depositedSigningKeysCount = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
 
         // reset vetted keys count to the deposited validators count
-        if (vettedSigningKeysCount > depositedSigningKeysCount) {
+        if (signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET) > depositedSigningKeysCount) {
             signingKeysStats.set(TOTAL_VETTED_KEYS_COUNT_OFFSET, depositedSigningKeysCount);
             _saveOperatorSigningKeysStats(_nodeOperatorId, signingKeysStats);
 
@@ -391,15 +385,13 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         _onlyCorrectNodeOperatorState(getNodeOperatorIsActive(_nodeOperatorId));
 
         Packed64x4.Packed memory signingKeysStats = _loadOperatorSigningKeysStats(_nodeOperatorId);
-        uint256 vettedSigningKeysCountBefore = signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET);
-        uint256 depositedSigningKeysCount = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
-        uint256 totalSigningKeysCount = signingKeysStats.get(TOTAL_KEYS_COUNT_OFFSET);
 
         uint256 vettedSigningKeysCountAfter = Math256.min(
-            totalSigningKeysCount, Math256.max(_vettedSigningKeysCount, depositedSigningKeysCount)
+            signingKeysStats.get(TOTAL_KEYS_COUNT_OFFSET), 
+            Math256.max(_vettedSigningKeysCount, signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET))
         );
 
-        if (vettedSigningKeysCountAfter == vettedSigningKeysCountBefore) {
+        if (vettedSigningKeysCountAfter == signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET)) {
             return;
         }
 
@@ -635,8 +627,8 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         uint256 curRefundedValidatorsCount = stuckPenaltyStats.get(REFUNDED_VALIDATORS_COUNT_OFFSET);
         if (_refundedValidatorsCount == curRefundedValidatorsCount) return;
 
-        Packed64x4.Packed memory signingKeysStats = _loadOperatorSigningKeysStats(_nodeOperatorId);
-        _requireValidRange(_refundedValidatorsCount <= signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET));
+        _requireValidRange(_refundedValidatorsCount <= 
+            _loadOperatorSigningKeysStats(_nodeOperatorId).get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET));
 
         uint256 curStuckValidatorsCount = stuckPenaltyStats.get(STUCK_VALIDATORS_COUNT_OFFSET);
         if (_refundedValidatorsCount >= curStuckValidatorsCount && curRefundedValidatorsCount < curStuckValidatorsCount) {
@@ -735,10 +727,10 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     function obtainDepositData(
         uint256 _depositsCount,
         bytes /* _depositCalldata */
-    ) external returns (bytes memory publicKeys, bytes memory signatures) {
+    ) external returns (bytes memory publicKeys, bytes memory signatures, address[] to) {
         _auth(STAKING_ROUTER_ROLE);
 
-        if (_depositsCount == 0) return (new bytes(0), new bytes(0));
+        if (_depositsCount == 0) return (new bytes(0), new bytes(0), new address[](0));
 
         (
             uint256 allocatedKeysCount,
@@ -748,7 +740,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
 
         require(allocatedKeysCount == _depositsCount, "INVALID_ALLOCATED_KEYS_COUNT");
 
-        (publicKeys, signatures) = _loadAllocatedSigningKeys(
+        (publicKeys, signatures, to) = _loadAllocatedSigningKeys(
             allocatedKeysCount,
             nodeOperatorIds,
             activeKeysCountAfterAllocation
@@ -762,11 +754,10 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         returns (uint256 exitedSigningKeysCount, uint256 depositedSigningKeysCount, uint256 maxSigningKeysCount)
     {
         Packed64x4.Packed memory signingKeysStats = _loadOperatorSigningKeysStats(_nodeOperatorId);
-        Packed64x4.Packed memory operatorTargetStats = _loadOperatorTargetValidatorsStats(_nodeOperatorId);
 
         exitedSigningKeysCount = signingKeysStats.get(TOTAL_EXITED_KEYS_COUNT_OFFSET);
         depositedSigningKeysCount = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
-        maxSigningKeysCount = operatorTargetStats.get(MAX_VALIDATORS_COUNT_OFFSET);
+        maxSigningKeysCount = _loadOperatorTargetValidatorsStats(_nodeOperatorId).get(MAX_VALIDATORS_COUNT_OFFSET);
 
         // Validate data boundaries invariants here to not use SafeMath in caller methods
         assert(maxSigningKeysCount >= depositedSigningKeysCount && depositedSigningKeysCount >= exitedSigningKeysCount);
@@ -863,18 +854,17 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         uint256 _keysCountToLoad,
         uint256[] memory _nodeOperatorIds,
         uint256[] memory _activeKeyCountsAfterAllocation
-    ) internal returns (bytes memory pubkeys, bytes memory signatures) {
+    ) internal returns (bytes memory pubkeys, bytes memory signatures, address[] memory tos) {
         (pubkeys, signatures) = SigningKeys.initKeysSigsBuf(_keysCountToLoad);
-
-        uint256 loadedKeysCount = 0;
-        uint256 depositedSigningKeysCountBefore;
-        uint256 depositedSigningKeysCountAfter;
-        uint256 keysCount;
-        Packed64x4.Packed memory signingKeysStats;
+        uint256 loadedKeysCount;
+        //uint256 depositedSigningKeysCountBefore;
+        //uint256 depositedSigningKeysCountAfter;
+        //uint256 keysCount;
+        //Packed64x4.Packed memory signingKeysStats;
         for (uint256 i; i < _nodeOperatorIds.length; ++i) {
-            signingKeysStats = _loadOperatorSigningKeysStats(_nodeOperatorIds[i]);
-            depositedSigningKeysCountBefore = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
-            depositedSigningKeysCountAfter =
+            Packed64x4.Packed memory signingKeysStats = _loadOperatorSigningKeysStats(_nodeOperatorIds[i]);
+            uint256 depositedSigningKeysCountBefore = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
+            uint256 depositedSigningKeysCountAfter =
                 signingKeysStats.get(TOTAL_EXITED_KEYS_COUNT_OFFSET) + _activeKeyCountsAfterAllocation[i];
 
             if (depositedSigningKeysCountAfter == depositedSigningKeysCountBefore) continue;
@@ -887,8 +877,8 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
             //   depositedSigningKeysCount >= exitedSigningKeysCount
             assert(depositedSigningKeysCountAfter > depositedSigningKeysCountBefore);
 
-            keysCount = depositedSigningKeysCountAfter - depositedSigningKeysCountBefore;
-            SIGNING_KEYS_MAPPING_NAME.loadKeysSigs(
+            uint256 keysCount = depositedSigningKeysCountAfter - depositedSigningKeysCountBefore;
+            tos = SIGNING_KEYS_MAPPING_NAME.loadKeysSigs(
                 _nodeOperatorIds[i], depositedSigningKeysCountBefore, keysCount, pubkeys, signatures, loadedKeysCount
             );
             loadedKeysCount += keysCount;
@@ -951,14 +941,14 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         recipients = new address[](activeCount);
         shares = new uint256[](activeCount);
         penalized = new bool[](activeCount);
-        uint256 idx = 0;
+        uint256 idx;
 
-        uint256 totalActiveValidatorsCount = 0;
-        Packed64x4.Packed memory signingKeysStats;
+        uint256 totalActiveValidatorsCount;
+        //Packed64x4.Packed memory signingKeysStats;
         for (uint256 operatorId; operatorId < nodeOperatorCount; ++operatorId) {
             if (!getNodeOperatorIsActive(operatorId)) continue;
 
-            signingKeysStats = _loadOperatorSigningKeysStats(operatorId);
+            Packed64x4.Packed memory signingKeysStats = _loadOperatorSigningKeysStats(operatorId);
             uint256 totalExitedValidators = signingKeysStats.get(TOTAL_EXITED_KEYS_COUNT_OFFSET);
             uint256 totalDepositedValidators = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
 
@@ -999,8 +989,9 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     /// @param _keysCount Number of signing keys provided
     /// @param _publicKeys Several concatenated validator signing keys
     /// @param _signatures Several concatenated signatures for (pubkey, withdrawal_credentials, 32000000000) messages
-    function addSigningKeys(uint256 _nodeOperatorId, uint256 _keysCount, bytes _publicKeys, bytes _signatures) external {
-        _addSigningKeys(_nodeOperatorId, _keysCount, _publicKeys, _signatures);
+    /// @param _tos array of EOA addresses which will receive ethers
+    function addSigningKeys(uint256 _nodeOperatorId, uint256 _keysCount, bytes _publicKeys, bytes _signatures, address[] _tos) external {
+        _addSigningKeys(_nodeOperatorId, _keysCount, _publicKeys, _signatures, _tos);
     }
 
     /// @notice Add `_quantity` validator signing keys of operator #`_id` to the set of usable keys. Concatenated keys are: `_pubkeys`. Can be done by node operator in question by using the designated rewards address.
@@ -1012,14 +1003,15 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     /// @param _keysCount Number of signing keys provided
     /// @param _publicKeys Several concatenated validator signing keys
     /// @param _signatures Several concatenated signatures for (pubkey, withdrawal_credentials, 32000000000) messages
+    /// @param _tos array of EOA address which will receive ethers
     /// @dev DEPRECATED use addSigningKeys instead
-    function addSigningKeysOperatorBH(uint256 _nodeOperatorId, uint256 _keysCount, bytes _publicKeys, bytes _signatures)
+    function addSigningKeysOperatorBH(uint256 _nodeOperatorId, uint256 _keysCount, bytes _publicKeys, bytes _signatures, address[] _tos)
         external
     {
-        _addSigningKeys(_nodeOperatorId, _keysCount, _publicKeys, _signatures);
+        _addSigningKeys(_nodeOperatorId, _keysCount, _publicKeys, _signatures, _tos);
     }
 
-    function _addSigningKeys(uint256 _nodeOperatorId, uint256 _keysCount, bytes _publicKeys, bytes _signatures) internal {
+    function _addSigningKeys(uint256 _nodeOperatorId, uint256 _keysCount, bytes _publicKeys, bytes _signatures, address[] _tos) internal {
         _onlyExistedNodeOperator(_nodeOperatorId);
         _onlyNodeOperatorManager(msg.sender, _nodeOperatorId);
 
@@ -1031,7 +1023,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         _requireValidRange(totalSigningKeysCount.add(_keysCount) <= UINT64_MAX);
 
         totalSigningKeysCount =
-            SIGNING_KEYS_MAPPING_NAME.saveKeysSigs(_nodeOperatorId, totalSigningKeysCount, _keysCount, _publicKeys, _signatures);
+            SIGNING_KEYS_MAPPING_NAME.saveKeysSigs(_nodeOperatorId, totalSigningKeysCount, _keysCount, _publicKeys, _signatures, _tos);
 
         emit TotalSigningKeysCountChanged(_nodeOperatorId, totalSigningKeysCount);
 
@@ -1099,8 +1091,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         signingKeysStats.set(TOTAL_KEYS_COUNT_OFFSET, totalSigningKeysCount);
         emit TotalSigningKeysCountChanged(_nodeOperatorId, totalSigningKeysCount);
 
-        uint256 vettedSigningKeysCount = signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET);
-        if (_fromIndex < vettedSigningKeysCount) {
+        if (_fromIndex < signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET)) {
             // decreasing the staking limit so the key at _index can't be used anymore
             signingKeysStats.set(TOTAL_VETTED_KEYS_COUNT_OFFSET, _fromIndex);
             emit VettedSigningKeysCountChanged(_nodeOperatorId, _fromIndex);
@@ -1119,8 +1110,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     /// @notice Returns total number of signing keys of the node operator #`_nodeOperatorId`
     function getTotalSigningKeyCount(uint256 _nodeOperatorId) external view returns (uint256) {
         _onlyExistedNodeOperator(_nodeOperatorId);
-        Packed64x4.Packed memory signingKeysStats = _loadOperatorSigningKeysStats(_nodeOperatorId);
-        return signingKeysStats.get(TOTAL_KEYS_COUNT_OFFSET);
+        return _loadOperatorSigningKeysStats(_nodeOperatorId).get(TOTAL_KEYS_COUNT_OFFSET);
     }
 
     /// @notice Returns number of usable signing keys of the node operator #`_nodeOperatorId`
@@ -1143,7 +1133,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         returns (bytes key, bytes depositSignature, bool used)
     {
         bool[] memory keyUses;
-        (key, depositSignature, keyUses) = getSigningKeys(_nodeOperatorId, _index, 1);
+        (key, depositSignature, keyUses, ) = getSigningKeys(_nodeOperatorId, _index, 1);
         used = keyUses[0];
     }
 
@@ -1157,7 +1147,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     function getSigningKeys(uint256 _nodeOperatorId, uint256 _offset, uint256 _limit)
         public
         view
-        returns (bytes memory pubkeys, bytes memory signatures, bool[] memory used)
+        returns (bytes memory pubkeys, bytes memory signatures, bool[] memory used, address[] memory tos)
     {
         _onlyExistedNodeOperator(_nodeOperatorId);
 
@@ -1166,9 +1156,10 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
 
         uint256 depositedSigningKeysCount = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
         (pubkeys, signatures) = SigningKeys.initKeysSigsBuf(_limit);
+        
         used = new bool[](_limit);
 
-        SIGNING_KEYS_MAPPING_NAME.loadKeysSigs(_nodeOperatorId, _offset, _limit, pubkeys, signatures, 0);
+        tos = SIGNING_KEYS_MAPPING_NAME.loadKeysSigs(_nodeOperatorId, _offset, _limit, pubkeys, signatures, 0);
         for (uint256 i; i < _limit; ++i) {
             used[i] = (_offset + i) < depositedSigningKeysCount;
         }
@@ -1235,8 +1226,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     }
 
     function isOperatorPenalized(uint256 _nodeOperatorId) public view returns (bool) {
-        Packed64x4.Packed memory stuckPenaltyStats = _loadOperatorStuckPenaltyStats(_nodeOperatorId);
-        return _isOperatorPenalized(stuckPenaltyStats);
+        return _isOperatorPenalized(_loadOperatorStuckPenaltyStats(_nodeOperatorId));
     }
 
     function isOperatorPenaltyCleared(uint256 _nodeOperatorId) public view returns (bool) {
@@ -1341,7 +1331,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     }
 
     function getLocator() public view returns (ILidoLocator) {
-        return ILidoLocator(LIDO_LOCATOR_POSITION.getStorageAddress());
+        return ILidoLocator(CLIP_LOCATOR_POSITION.getStorageAddress());
     }
 
     function getStuckPenaltyDelay() public view returns (uint256) {

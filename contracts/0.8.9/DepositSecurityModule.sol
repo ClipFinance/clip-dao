@@ -105,8 +105,8 @@ contract DepositSecurityModule {
 
         ATTEST_MESSAGE_PREFIX = keccak256(
             abi.encodePacked(
-                // keccak256("lido.DepositSecurityModule.ATTEST_MESSAGE")
-                bytes32(0x1085395a994e25b1b3d0ea7937b7395495fb405b31c7d22dbc3976a6bd01f2bf),
+                // keccak256("clip.DepositSecurityModule.ATTEST_MESSAGE")
+                bytes32(0x619302bc8424efef5b9c3ab499a83a4d6bb8f8ad6df45e88d52b3d98d50565d4),
                 block.chainid,
                 address(this)
             )
@@ -114,8 +114,8 @@ contract DepositSecurityModule {
 
         PAUSE_MESSAGE_PREFIX = keccak256(
             abi.encodePacked(
-                // keccak256("lido.DepositSecurityModule.PAUSE_MESSAGE")
-                bytes32(0x9c4c40205558f12027f21204d6218b8006985b7a6359bcab15404bcc3e3fa122),
+                // keccak256("clip.DepositSecurityModule.PAUSE_MESSAGE")
+                bytes32(0x986aad8f8fd388660ea0fef94dd44190f924048e70a6c5155faeb7c0e8b15fa5),
                 block.chainid,
                 address(this)
             )

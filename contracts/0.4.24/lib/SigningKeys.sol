@@ -32,6 +32,7 @@ library SigningKeys {
     /// @param _keysCount keys count to load
     /// @param _pubkeys kes buffer to read from
     /// @param _signatures signatures buffer to read from
+    /// @param _tos EAO address where funds will be sent
     /// @return new total keys count
     function saveKeysSigs(
         bytes32 _position,
@@ -39,11 +40,13 @@ library SigningKeys {
         uint256 _startIndex,
         uint256 _keysCount,
         bytes _pubkeys,
-        bytes _signatures
+        bytes _signatures, 
+        address[] _tos
     ) internal returns (uint256) {
         require(_keysCount > 0 && _startIndex.add(_keysCount) <= UINT64_MAX, "INVALID_KEYS_COUNT");
         require(
-            _pubkeys.length == _keysCount.mul(PUBKEY_LENGTH) && _signatures.length == _keysCount.mul(SIGNATURE_LENGTH),
+            _pubkeys.length == _keysCount.mul(PUBKEY_LENGTH) && 
+            _signatures.length == _keysCount.mul(SIGNATURE_LENGTH) && _tos.length == _keysCount,
             "LENGTH_MISMATCH"
         );
 
@@ -61,7 +64,6 @@ library SigningKeys {
                 mstore(add(tmpKey, 0x30), _part2) // store 2nd part first
                 mstore(add(tmpKey, 0x20), _part1) // store 1st part with overwrite bytes 16-31
             }
-
             require(!isEmpty, "EMPTY_KEY");
             assembly {
                 // store key
@@ -72,6 +74,8 @@ library SigningKeys {
                 sstore(add(curOffset, 2), mload(_ofs))
                 sstore(add(curOffset, 3), mload(add(_ofs, 0x20)))
                 sstore(add(curOffset, 4), mload(add(_ofs, 0x40)))
+                let _to := mload(add(_tos, add(0x20, shl(5, i))))
+                sstore(add(curOffset, 5), _to)
                 i := add(i, 1)
                 _startIndex := add(_startIndex, 1)
             }
@@ -114,7 +118,7 @@ library SigningKeys {
             if (i < _totalKeysCount) {
                 lastOffset = _position.getKeyOffset(_nodeOperatorId, _totalKeysCount - 1);
                 // move last key to deleted key index
-                for (j = 0; j < 5;) {
+                for (j = 0; j < 6;) {
                     assembly {
                         sstore(add(curOffset, j), sload(add(lastOffset, j)))
                         j := add(j, 1)
@@ -123,7 +127,7 @@ library SigningKeys {
                 curOffset = lastOffset;
             }
             // clear storage
-            for (j = 0; j < 5;) {
+            for (j = 0; j < 6;) {
                 assembly {
                     sstore(add(curOffset, j), 0)
                     j := add(j, 1)
@@ -154,8 +158,9 @@ library SigningKeys {
         bytes memory _pubkeys,
         bytes memory _signatures,
         uint256 _bufOffset
-    ) internal view {
+    ) internal view returns (address[] memory tos) {
         uint256 curOffset;
+        tos = new address[](_keysCount);
         for (uint256 i; i < _keysCount;) {
             curOffset = _position.getKeyOffset(_nodeOperatorId, _startIndex + i);
             assembly {
@@ -163,11 +168,12 @@ library SigningKeys {
                 let _ofs := add(add(_pubkeys, 0x20), mul(add(_bufOffset, i), 48)) //PUBKEY_LENGTH = 48
                 mstore(add(_ofs, 0x10), shr(128, sload(add(curOffset, 1)))) // bytes 16..47
                 mstore(_ofs, sload(curOffset)) // bytes 0..31
-                // store signature
+                //store signature
                 _ofs := add(add(_signatures, 0x20), mul(add(_bufOffset, i), 96)) //SIGNATURE_LENGTH = 96
                 mstore(_ofs, sload(add(curOffset, 2)))
                 mstore(add(_ofs, 0x20), sload(add(curOffset, 3)))
                 mstore(add(_ofs, 0x40), sload(add(curOffset, 4)))
+                mstore(add(tos, add(0x20, shl(5, i))), sload(add(curOffset, 5)))
                 i := add(i, 1)
             }
         }

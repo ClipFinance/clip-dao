@@ -10,7 +10,7 @@ import "./VaultMock.sol";
  * @dev Only for testing purposes! Lido version with some functions exposed.
  */
 contract LidoMock is Lido {
-    bytes32 internal constant ALLOW_TOKEN_POSITION = keccak256("lido.Lido.allowToken");
+    bytes32 internal constant ALLOW_TOKEN_POSITION = keccak256("clip.clip.allowToken");
     uint256 internal constant UNLIMITED_TOKEN_REBASE = uint256(-1);
 
     function initialize(
