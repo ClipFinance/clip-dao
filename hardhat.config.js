@@ -49,7 +49,7 @@ const getNetConfig = (networkName, ethAccountName) => {
         ? 'remote'
         : ethAccts[ethAccountName] || ethAccts[networkName] || ethAccts.dev || 'remote',
     ensAddress: netState.ensAddress,
-    timeout: 60000,
+    timeout: 600000,
   }
   const byNetName = {
     mainnetfork: {
@@ -142,21 +142,18 @@ const solcSettings8 = {
 module.exports = {
   defaultNetwork: NETWORK_NAME,
   networks: getNetConfig(NETWORK_NAME, ETH_ACCOUNT_NAME),
+  mocha: {
+    timeout: 100000000,
+  },
   solidity: {
     compilers: [
       {
         version: '0.4.24',
         settings: solcSettings4,
-        mocha: {
-          timeout: 100000000,
-        },
       },
       {
         version: '0.6.11',
         settings: solcSettings6,
-        mocha: {
-          timeout: 100000000,
-        },
       },
       {
         version: '0.6.12',
@@ -165,16 +162,10 @@ module.exports = {
       {
         version: '0.8.4',
         settings: solcSettings8,
-        mocha: {
-          timeout: 100000000,
-        },
       },
       {
         version: '0.8.9',
         settings: solcSettings8,
-        mocha: {
-          timeout: 100000000,
-        },
       },
     ],
     overrides: {

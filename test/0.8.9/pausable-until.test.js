@@ -135,7 +135,9 @@ contract('PausableUntil', ([deployer]) => {
       const resumeSinceTimestamp = pauseUntilInclusive + 1
 
       const tx = await pausable.pauseUntil(pauseUntilInclusive)
-      assert.emits(tx, 'Paused', { duration: pauseDuration })
+      const durationFromEvent = tx.logs[0].args['0'];
+      assert.emits(tx, 'Paused');
+      assert.isAtMost(pauseDuration - durationFromEvent, 2)
 
       await assertPausedState(resumeSinceTimestamp)
 

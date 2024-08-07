@@ -139,7 +139,7 @@ interface IStakingModule {
     /// @return signatures Batch of the concatenated deposit signatures for returned public keys
     function obtainDepositData(uint256 _depositsCount, bytes calldata _depositCalldata)
         external
-        returns (bytes memory publicKeys, bytes memory signatures, address[] memory _tos);
+        returns (bytes memory publicKeys, bytes memory signatures, address[] memory tos);
 
     /// @notice Called by StakingRouter after it finishes updating exited and stuck validators
     /// counts for this module's node operators.

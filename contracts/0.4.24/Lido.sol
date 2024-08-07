@@ -16,7 +16,6 @@ import "../common/lib/Math256.sol";
 import "./StETHPermit.sol";
 
 import "./utils/Versioned.sol";
-import "hardhat/console.sol";
 
 interface IPostTokenRebaseReceiver {
     function handlePostTokenRebase(
@@ -586,7 +585,6 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         uint256 _simulatedShareRate
     ) external returns (uint256[4] postRebaseAmounts) {
         _whenNotStopped();
-        console.log("here");
         return _handleOracleReport(
             OracleReportedData(
                 _reportTimestamp,
@@ -703,8 +701,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
             _maxDepositsCount,
             stakingRouter.getStakingModuleMaxDepositsCount(_stakingModuleId, getDepositableEther())
         );
-        console.log("depositsCount: ", depositsCount);
-
+        
         uint256 depositsValue;
         if (depositsCount > 0) {
             depositsValue = depositsCount.mul(DEPOSIT_SIZE);
@@ -721,7 +718,6 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         /// @dev transfer ether to StakingRouter and make a deposit at the same time. All the ether
         ///     sent to StakingRouter is counted as deposited. If StakingRouter can't deposit all
         ///     passed ether it MUST revert the whole transaction (never happens in normal circumstances)
-        console.log("stakingRouter depositValue: ", depositsValue);
         stakingRouter.deposit.value(depositsValue)(depositsCount, _stakingModuleId, _depositCalldata);
     }
 
@@ -1187,7 +1183,6 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         require(_reportedData.reportTimestamp <= block.timestamp, "INVALID_REPORT_TIMESTAMP");
 
         OracleReportContext memory reportContext;
-        console.log("startging bufferedEther: ", _getBufferedEther());
         // Step 1.
         // Take a snapshot of the current (pre-) state
         reportContext.preTotalPooledEther = _getTotalPooledEther();
@@ -1250,7 +1245,6 @@ contract Lido is Versioned, StETHPermit, AragonApp {
             _reportedData.simulatedShareRate,
             reportContext.etherToLockOnWithdrawalQueue
         );
-        console.log("Next bufferedEther: ", _getBufferedEther());
         emit ETHDistributed(
             _reportedData.reportTimestamp,
             reportContext.preCLBalance,

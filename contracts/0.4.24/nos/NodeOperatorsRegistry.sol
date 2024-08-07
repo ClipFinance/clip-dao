@@ -727,7 +727,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
     function obtainDepositData(
         uint256 _depositsCount,
         bytes /* _depositCalldata */
-    ) external returns (bytes memory publicKeys, bytes memory signatures, address[] to) {
+    ) external returns (bytes memory publicKeys, bytes memory signatures, address[] tos) {
         _auth(STAKING_ROUTER_ROLE);
 
         if (_depositsCount == 0) return (new bytes(0), new bytes(0), new address[](0));
@@ -740,11 +740,12 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
 
         require(allocatedKeysCount == _depositsCount, "INVALID_ALLOCATED_KEYS_COUNT");
 
-        (publicKeys, signatures, to) = _loadAllocatedSigningKeys(
+        (publicKeys, signatures, tos) = _loadAllocatedSigningKeys(
             allocatedKeysCount,
             nodeOperatorIds,
             activeKeysCountAfterAllocation
         );
+
         _increaseValidatorsKeysNonce();
     }
 

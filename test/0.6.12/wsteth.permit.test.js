@@ -131,7 +131,7 @@ contract('WstETH.permit', function ([deployer, ...accounts]) {
       const { owner, spender, value, nonce } = permitParams
       // create a signed permit that won't be valid until 10 seconds
       // later
-      const deadline = Math.floor(Date.now() / 1000) - 1
+      const deadline = (await ethers.provider.getBlock('latest')).timestamp - 1;//Math.floor(Date.now() / 1000) - 1
       const { v, r, s } = signPermit(owner, spender, value, nonce, deadline, domainSeparator, alice.key)
 
       // try to submit the permit that is expired

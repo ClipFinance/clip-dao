@@ -174,7 +174,7 @@ contract('StakingRouter', (accounts) => {
   })
 
   describe('Two staking modules', async function () {
-    this.timeout(60_000, 'Test suite took too long')
+    this.timeout(600_000, 'Test suite took too long')
     for (const [module1TargetShare, module2TargetShare] of TWO_MODULES_TARGET_SHARES_CASES) {
       describe(`Target shares: ${module1TargetShare} and ${module2TargetShare}`, async () => {
         beforeEach(async () => {

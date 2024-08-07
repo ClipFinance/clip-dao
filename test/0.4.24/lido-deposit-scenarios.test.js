@@ -82,7 +82,8 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
     assert.equal(await getBalance(lido), initialLidoETHBalance + unaccountedLidoETHBalance)
 
     const depositDataLength = DEPOSITABLE_VALIDATORS_COUNT
-    await stubObtainDepositDataReturns(...new FakeValidatorKeys(depositDataLength).slice())
+    const keys = new FakeValidatorKeys(depositDataLength);
+    await stubObtainDepositDataReturns(...keys.slice(), keys.tos)
 
     const submitAmount = wei`320 ether`
     await lido.submit(ZERO_ADDRESS, { from: staker, value: wei.str(submitAmount) })
@@ -94,20 +95,21 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
 
     assert.equals(await getBalance(stakingRouter), initialStakingRouterBalance)
     const depositedEther = wei`32 ether` * wei.min(maxDepositsCount, DEPOSITABLE_VALIDATORS_COUNT)
-    /*assert.equals(
+    assert.equals(
       await getBalance(lido),
       initialLidoETHBalance + unaccountedLidoETHBalance + submitAmount - depositedEther
-    )*/
+    )
   })
 
-  /*describe('StakingModule returns invalid data', () => {
+  describe('StakingModule returns invalid data', () => {
     it('obtainDepositData() returns more publicKeys and signatures than expected', async () => {
       const initialStakingRouterBalance = wei`1 ether`
       await setBalance(stakingRouter, initialStakingRouterBalance)
       assert.equals(await getBalance(stakingRouter), initialStakingRouterBalance)
 
       const depositDataLength = DEPOSITABLE_VALIDATORS_COUNT + 2
-      await stubObtainDepositDataReturns(...new FakeValidatorKeys(depositDataLength).slice())
+      const keys = new FakeValidatorKeys(depositDataLength);
+      await stubObtainDepositDataReturns(...keys.slice(), keys.tos)
 
       const initialLidETHBalance = await getBalance(lido)
 
@@ -133,7 +135,8 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       const depositData = new FakeValidatorKeys(depositDataLength)
       await stubObtainDepositDataReturns(
         depositData.slice()[0], // two extra public keys returned
-        depositData.slice(0, DEPOSITABLE_VALIDATORS_COUNT)[1]
+        depositData.slice(0, DEPOSITABLE_VALIDATORS_COUNT)[1],
+        [depositData.tos[0]]
       )
 
       const initialLidETHBalance = await getBalance(lido)
@@ -160,7 +163,8 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       const depositData = new FakeValidatorKeys(depositDataLength)
       await stubObtainDepositDataReturns(
         depositData.slice(0, DEPOSITABLE_VALIDATORS_COUNT)[0],
-        depositData.slice()[1] // two extra signatures returned
+        depositData.slice()[1], // two extra signatures returned
+        [depositData.tos[0], depositData.tos[1]]
       )
 
       const initialLidETHBalance = await getBalance(lido)
@@ -193,7 +197,8 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       assert.equal(await getBalance(lido), initialLidoETHBalance + submitAmount)
 
       const depositDataLength = DEPOSITABLE_VALIDATORS_COUNT
-      await stubObtainDepositDataReturns(...new FakeValidatorKeys(depositDataLength).slice())
+      const keys = new FakeValidatorKeys(depositDataLength);
+      await stubObtainDepositDataReturns(...keys.slice(), keys.tos)
 
       const maxDepositsCount = 10
       await assert.reverts(lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, { from: depositor }))
@@ -233,5 +238,5 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       assert.notEquals(stakingModuleStateBefore.lastDepositAt, stakingModuleStateAfter.lastDepositAt)
       assert.notEquals(stakingModuleStateBefore.lastDepositBlock, stakingModuleStateAfter.lastDepositBlock)
     })
-  })*/
+  })
 })
