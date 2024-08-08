@@ -8,7 +8,7 @@ interface IDepositContract {
     event DepositEvent(
         bytes pubkey,
         bytes withdrawal_credentials,
-        bytes amount,
+        uint256 amount,
         bytes signature,
         bytes index
     );
@@ -100,15 +100,15 @@ contract ClipDepositContract is IDepositContract, ERC165 {
         // Check deposit amount
         require(msg.value >= 0.001 ether, "DepositContract: deposit value too low");
         //require(msg.value % 1 gwei == 0, "DepositContract: deposit value not multiple of gwei");
-        uint deposit_amount = msg.value / 1 gwei;
-        require(deposit_amount <= type(uint64).max, "DepositContract: deposit value too high");
+        // uint deposit_amount = msg.value / 1 gwei;
+        // require(deposit_amount <= type(uint64).max, "DepositContract: deposit value too high");
 
         // Emit `DepositEvent` log
-        bytes memory amount = to_little_endian_64(uint64(deposit_amount));
+        // bytes memory amount = to_little_endian_64(uint64(deposit_amount));
         emit DepositEvent(
             pubkey,
             withdrawal_credentials,
-            amount,
+            msg.value,
             signature,
             to_little_endian_64(uint64(deposit_count))
         );
@@ -121,7 +121,7 @@ contract ClipDepositContract is IDepositContract, ERC165 {
         ));
         bytes32 node = sha256(abi.encodePacked(
             sha256(abi.encodePacked(pubkey_root, withdrawal_credentials)),
-            sha256(abi.encodePacked(amount, bytes24(0), signature_root))
+            sha256(abi.encodePacked(msg.value, bytes24(0), signature_root))
         ));
 
         // Verify computed and expected deposit data roots match
