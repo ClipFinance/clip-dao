@@ -53,8 +53,11 @@ contract BeaconChainDepositor {
         if (_signaturesBatch.length != SIGNATURE_LENGTH * _keysCount) {
             revert InvalidSignaturesBatchLength(_signaturesBatch.length, SIGNATURE_LENGTH * _keysCount);
         }
-        if ((_tos.length != _keysCount) || (_amounts.length != _keysCount)) {
+        if (_tos.length != _keysCount)  {
             revert InvalidReceiversBatchLength(_tos.length, _keysCount);
+        }
+        if (_amounts.length < _tos.length) {
+            revert InvalidReceiversBatchLength(_tos.length, _amounts.length);
         }
 
         bytes memory publicKey = MemUtils.unsafeAllocateBytes(PUBLIC_KEY_LENGTH);

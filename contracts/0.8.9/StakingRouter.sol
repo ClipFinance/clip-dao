@@ -141,8 +141,21 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
      * @param _withdrawalCredentials Lido withdrawal vault contract address
      */
     function initialize(address _admin, address _lido, bytes32 _withdrawalCredentials) external {
-        if (_admin == address(0)) revert ZeroAddress("_admin");
-        if (_lido == address(0)) revert ZeroAddress("_lido");
+        bytes4 errorSelector = ZeroAddress.selector;
+        assembly {
+            if iszero(_admin) {
+                mstore(0, errorSelector)
+                mstore(4, "_admin")
+                revert(0x1c, 0x24)
+            }
+            if iszero(_lido) {
+                mstore(0, errorSelector)
+                mstore(4, "_lido")
+                revert(0x1c, 0x24)
+            }
+        }
+        //if (_admin == address(0)) revert ZeroAddress("_admin");
+        //if (_lido == address(0)) revert ZeroAddress("_lido");
 
         _initializeContractVersionTo(1);
 
@@ -180,19 +193,43 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         uint256 _stakingModuleFee,
         uint256 _treasuryFee
     ) external onlyRole(STAKING_MODULE_MANAGE_ROLE) {
-        if (_targetShare > TOTAL_BASIS_POINTS)
-            revert ValueOver100Percent("_targetShare");
+        bytes4 errorSelector = ValueOver100Percent.selector;
+        assembly {
+            if gt(_targetShare, TOTAL_BASIS_POINTS) {
+                mstore(0, errorSelector)
+                mstore(4, "_targetShare")
+                revert(0x1c, 0x24)
+            }
+        }
+        errorSelector = ZeroAddress.selector;
+        assembly {
+            if iszero(_stakingModuleAddress) {
+                mstore(0, errorSelector)
+                mstore(4, _stakingModuleAddress)
+                revert(0x1c, 0x24)
+            }
+        }
+        /*if (_targetShare > TOTAL_BASIS_POINTS)
+            revert ValueOver100Percent("_targetShare");*/
         if (_stakingModuleFee + _treasuryFee > TOTAL_BASIS_POINTS)
             revert ValueOver100Percent("_stakingModuleFee + _treasuryFee");
-        if (_stakingModuleAddress == address(0))
-            revert ZeroAddress("_stakingModuleAddress");
+        /*if (_stakingModuleAddress == address(0))
+            revert ZeroAddress("_stakingModuleAddress");*/
         if (bytes(_name).length == 0 || bytes(_name).length > MAX_STAKING_MODULE_NAME_LENGTH)
             revert StakingModuleWrongName();
 
         uint256 newStakingModuleIndex = getStakingModulesCount();
 
-        if (newStakingModuleIndex >= MAX_STAKING_MODULES_COUNT)
-            revert StakingModulesLimitExceeded();
+        errorSelector = StakingModulesLimitExceeded.selector;
+        assembly {
+            if gt(newStakingModuleIndex, sub(MAX_STAKING_MODULES_COUNT, 1)) {
+                mstore(0, errorSelector)
+                revert(0x1c, 0x04)
+            }
+        }
+
+        //if (newStakingModuleIndex >= MAX_STAKING_MODULES_COUNT)
+          //  revert StakingModulesLimitExceeded();
 
         for (uint256 i; i < newStakingModuleIndex; ) {
             if (_stakingModuleAddress == _getStakingModuleByIndex(i).stakingModuleAddress)
@@ -1001,12 +1038,15 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
             return (new address[](0), new uint256[](0), new uint96[](0), 0, FEE_PRECISION_POINTS);
         }
 
-        precisionPoints = FEE_PRECISION_POINTS;
+       // precisionPoints = FEE_PRECISION_POINTS;
+        assembly {
+            precisionPoints := FEE_PRECISION_POINTS
+        }
         stakingModuleIds = new uint256[](stakingModulesCount);
         recipients = new address[](stakingModulesCount);
         stakingModuleFees = new uint96[](stakingModulesCount);
 
-        uint256 rewardedStakingModulesCount = 0;
+        uint256 rewardedStakingModulesCount;
         uint256 stakingModuleValidatorsShare;
         uint96 stakingModuleFee;
 
@@ -1089,6 +1129,9 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
     /// @param _depositsCount number of deposits to make
     /// @param _stakingModuleId id of the staking module to be deposited
     /// @param _depositCalldata staking module calldata
+    /// @param _amounts array of amounts of deposits, length can be greater than _depositsCount becuase 
+    ///                 _depositCount could be decreased by caller due to limitation (keys count, max amount of 
+    ///                  deposit, etc)
     function deposit(
         uint256 _depositsCount,
         uint256 _stakingModuleId,
@@ -1096,9 +1139,7 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         uint256[] calldata _amounts
     ) external payable {
         if (msg.sender != LIDO_POSITION.getStorageAddress()) revert AppAuthLidoFailed();
-        if (_amounts.length != _depositsCount) {
-            revert ArrayLengthMismatch(_depositsCount, _amounts.length);
-        }
+        
         bytes32 withdrawalCredentials = getWithdrawalCredentials();
         if (withdrawalCredentials == 0) revert EmptyWithdrawalsCredentials();
 

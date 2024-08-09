@@ -184,7 +184,8 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       1,
       keysOpIndex,
       '0x00',
-      signatures
+      signatures,
+      [ETH(32)]
     )
 
     // No Ether was deposited yet to the validator contract
@@ -266,13 +267,14 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       1,
       keysOpIndex,
       '0x00',
-      signatures
+      signatures,
+      [ETH(9)]
     )
   })
 
   it('new validator gets the 32 ETH deposit from the pool', async () => {
-    assert.equals(await pool.getBufferedEther(), ETH(1), `only initial eth is left`)
-    assert.equals(await pool.getTotalPooledEther(), ETH(33), 'total pooled ether')
+    assert.equals(await pool.getBufferedEther(), ETH(24), `rest eth is left`)
+    assert.equals(await pool.getTotalPooledEther(), ETH(56), 'total pooled ether')
     assert.equals(
       await nodeOperatorsRegistry.getUnusedSigningKeyCount(0),
       0,
@@ -281,7 +283,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
   })
 
   it('first oracle report is taken as-is for Lido', async () => {
-    assert.equals(await pool.getTotalPooledEther(), ETH(33), '32 ETH deposit + 1 ETH initial')
+    assert.equals(await pool.getTotalPooledEther(), ETH(56), '23 rest + 32 ETH deposit + 1 ETH initial')
 
     // Reporting 1 ETH balance loss (32 => 31)
     await pushReport(1, ETH(31))
@@ -292,7 +294,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       'Total shares stay the same because no fee shares are added'
     )
 
-    assert.equals(await pool.getTotalPooledEther(), ETH(32), 'Total pooled Ether decreased')
+    assert.equals(await pool.getTotalPooledEther(), ETH(55), 'Total pooled Ether decreased')
 
     const clStat = await pool.getBeaconStat()
     assert.equals(clStat.depositedValidators, 1, 'validators count')

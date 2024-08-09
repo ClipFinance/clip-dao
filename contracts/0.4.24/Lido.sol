@@ -84,7 +84,8 @@ interface IStakingRouter {
     function deposit(
         uint256 _depositsCount,
         uint256 _stakingModuleId,
-        bytes _depositCalldata
+        bytes _depositCalldata,
+        uint256[] _amounts
     ) external payable;
 
     function getStakingRewardsDistribution()
@@ -690,21 +691,24 @@ contract Lido is Versioned, StETHPermit, AragonApp {
      * @param _stakingModuleId id of the staking module to be deposited
      * @param _depositCalldata module calldata
      */
-    function deposit(uint256 _maxDepositsCount, uint256 _stakingModuleId, bytes _depositCalldata) external {
-        ILidoLocator locator = getLidoLocator();
+    function deposit(uint256 _maxDepositsCount, uint256 _stakingModuleId, bytes _depositCalldata, uint256[] _amounts) 
+        external {
 
-        require(msg.sender == locator.depositSecurityModule(), "APP_AUTH_DSM_FAILED");
+        require(msg.sender == getLidoLocator().depositSecurityModule(), "APP_AUTH_DSM_FAILED");
         require(canDeposit(), "CAN_NOT_DEPOSIT");
 
         IStakingRouter stakingRouter = _stakingRouter();
-        uint256 depositsCount = Math256.min(
+        uint256 depositsCount = Math256.min(_amounts.length, Math256.min(
             _maxDepositsCount,
-            stakingRouter.getStakingModuleMaxDepositsCount(_stakingModuleId, getDepositableEther())
+            stakingRouter.getStakingModuleMaxDepositsCount(_stakingModuleId, getDepositableEther()))
         );
         
         uint256 depositsValue;
         if (depositsCount > 0) {
-            depositsValue = depositsCount.mul(DEPOSIT_SIZE);
+            for (uint256 i = 0; i < depositsCount; ++i) {
+                depositsValue += _amounts[i];
+            }
+            //depositsValue = depositsCount.mul(DEPOSIT_SIZE);
             /// @dev firstly update the local state of the contract to prevent a reentrancy attack,
             ///     even if the StakingRouter is a trusted contract.
             BUFFERED_ETHER_POSITION.setStorageUint256(_getBufferedEther().sub(depositsValue));
@@ -718,7 +722,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         /// @dev transfer ether to StakingRouter and make a deposit at the same time. All the ether
         ///     sent to StakingRouter is counted as deposited. If StakingRouter can't deposit all
         ///     passed ether it MUST revert the whole transaction (never happens in normal circumstances)
-        stakingRouter.deposit.value(depositsValue)(depositsCount, _stakingModuleId, _depositCalldata);
+        stakingRouter.deposit.value(depositsValue)(depositsCount, _stakingModuleId, _depositCalldata, _amounts);
     }
 
     /// DEPRECATED PUBLIC METHODS

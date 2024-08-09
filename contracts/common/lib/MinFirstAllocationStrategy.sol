@@ -32,9 +32,8 @@ library MinFirstAllocationStrategy {
         uint256[] memory capacities,
         uint256 allocationSize
     ) internal pure returns (uint256 allocated) {
-        uint256 allocatedToBestCandidate = 0;
         while (allocated < allocationSize) {
-            allocatedToBestCandidate = allocateToBestCandidate(buckets, capacities, allocationSize - allocated);
+            uint256 allocatedToBestCandidate = allocateToBestCandidate(buckets, capacities, allocationSize - allocated);
             if (allocatedToBestCandidate == 0) {
                 break;
             }
@@ -71,7 +70,7 @@ library MinFirstAllocationStrategy {
         if (allocationSize == 0) {
             return 0;
         }
-
+        
         for (uint256 i = 0; i < buckets.length; ++i) {
             if (buckets[i] >= capacities[i]) {
                 continue;
@@ -80,9 +79,10 @@ library MinFirstAllocationStrategy {
                 bestCandidatesCount = 1;
                 bestCandidateAllocation = buckets[i];
             } else if (bestCandidateAllocation == buckets[i]) {
-                bestCandidatesCount += 1;
+                ++bestCandidatesCount;
             }
         }
+
 
         if (bestCandidatesCount == 0) {
             return 0;

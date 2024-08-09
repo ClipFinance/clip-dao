@@ -217,7 +217,8 @@ contract('Lido: rewards distribution math', (addresses) => {
       curated.id,
       keysOpIndex,
       '0x',
-      signatures
+      signatures,
+      [ETH(32)]
     )
     assert.equals(
       await nodeOperatorsRegistry.getUnusedSigningKeyCount(0),
@@ -466,7 +467,8 @@ contract('Lido: rewards distribution math', (addresses) => {
           curated.id,
           keysOpIndex,
           '0x00',
-          signatures
+          signatures,
+          [ETH(32)]
         ),
       treasuryAddr,
       nodeOperator1.address,
@@ -723,7 +725,8 @@ contract('Lido: rewards distribution math', (addresses) => {
       newCurated.id,
       keysOpIndex,
       '0x',
-      signatures
+      signatures,
+      [ETH(32)]
     )
     assert.equals(await anotherCuratedModule.getUnusedSigningKeyCount(0), 9, 'operator of module has 9 unused keys')
 

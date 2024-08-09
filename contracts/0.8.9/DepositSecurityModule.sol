@@ -10,7 +10,8 @@ interface ILido {
     function deposit(
         uint256 _maxDepositsCount,
         uint256 _stakingModuleId,
-        bytes calldata _depositCalldata
+        bytes calldata _depositCalldata,
+        uint256[] calldata _amounts
     ) external;
     function canDeposit() external view returns (bool);
 }
@@ -64,6 +65,7 @@ contract DepositSecurityModule {
     error PauseIntentExpired();
     error NotAGuardian(address addr);
     error ZeroParameter(string parameter);
+    error EmptyDepositAmounts();
 
     bytes32 public immutable ATTEST_MESSAGE_PREFIX;
     bytes32 public immutable PAUSE_MESSAGE_PREFIX;
@@ -425,8 +427,12 @@ contract DepositSecurityModule {
         uint256 stakingModuleId,
         uint256 nonce,
         bytes calldata depositCalldata,
-        Signature[] calldata sortedGuardianSignatures
+        Signature[] calldata sortedGuardianSignatures,
+        uint256[] calldata amounts
     ) external {
+        if (amounts.length == 0) {
+            revert EmptyDepositAmounts();
+        }
         if (quorum == 0 || sortedGuardianSignatures.length < quorum) revert DepositNoQuorum();
 
         bytes32 onchainDepositRoot = IDepositContract(DEPOSIT_CONTRACT).get_deposit_root();
@@ -443,7 +449,7 @@ contract DepositSecurityModule {
 
         _verifySignatures(depositRoot, blockNumber, blockHash, stakingModuleId, nonce, sortedGuardianSignatures);
 
-        LIDO.deposit(maxDepositsPerBlock, stakingModuleId, depositCalldata);
+        LIDO.deposit(maxDepositsPerBlock, stakingModuleId, depositCalldata, amounts);
     }
 
     function _verifySignatures(
