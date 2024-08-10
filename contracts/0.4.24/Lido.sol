@@ -16,6 +16,7 @@ import "../common/lib/Math256.sol";
 import "./StETHPermit.sol";
 
 import "./utils/Versioned.sol";
+import "hardhat/console.sol";
 
 interface IPostTokenRebaseReceiver {
     function handlePostTokenRebase(
@@ -172,8 +173,6 @@ contract Lido is Versioned, StETHPermit, AragonApp {
     bytes32 public constant UNSAFE_CHANGE_DEPOSITED_VALIDATORS_ROLE =
         0xe6dc5d79630c61871e99d341ad72c5a052bed2fc8c79e5a4480a7cd31117576c; // keccak256("UNSAFE_CHANGE_DEPOSITED_VALIDATORS_ROLE")
 
-    uint256 private constant DEPOSIT_SIZE = 32 ether;
-
     /// @dev storage slot position for the Lido protocol contracts locator
     bytes32 internal constant LIDO_LOCATOR_POSITION =
         0x17a1e03cc0acd5c9fc80fa63bd61263f3ac3467df075fef4206d57457bf5e05b; // keccak256("clip.clip.clipLocator")
@@ -194,6 +193,8 @@ contract Lido is Versioned, StETHPermit, AragonApp {
     // "beacon" in the `keccak256()` parameter is staying here for compatibility reason
     bytes32 internal constant CL_VALIDATORS_POSITION =
         0x03a7969f06ac892b00dfdaf44e362e7634c249f6d66e9e29d9f3e6a1f4b70790; // keccak256("clip.clip.beaconValidators");
+    bytes32 internal constant CL_VALIDATORS_AMOUNT = 
+        0x364d13708c78093ec5436d5792f31ac072984d05b9e24cebe47fda5e170ea5e7; // keccak256("clip.clip.beaconValidatorsAmounts");
     /// @dev Just a counter of total amount of execution layer rewards received by Lido contract. Not used in the logic.
     bytes32 internal constant TOTAL_EL_REWARDS_COLLECTED_POSITION =
         0x8fe46c1811b07133ba2046eca789b5af9aa33bfb2931e230ddb647fde9a7e026; // keccak256("clip.clip.totalELRewardsCollected");
@@ -697,32 +698,40 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         require(msg.sender == getLidoLocator().depositSecurityModule(), "APP_AUTH_DSM_FAILED");
         require(canDeposit(), "CAN_NOT_DEPOSIT");
 
-        IStakingRouter stakingRouter = _stakingRouter();
-        uint256 depositsCount = Math256.min(_amounts.length, Math256.min(
+        uint256 depositsCount = Math256.min(
             _maxDepositsCount,
-            stakingRouter.getStakingModuleMaxDepositsCount(_stakingModuleId, getDepositableEther()))
+            _stakingRouter().getStakingModuleMaxDepositsCount(_stakingModuleId, getDepositableEther())
         );
+        depositsCount = Math256.min(_amounts.length, depositsCount);
         
         uint256 depositsValue;
         if (depositsCount > 0) {
             for (uint256 i = 0; i < depositsCount; ++i) {
                 depositsValue += _amounts[i];
             }
+            uint256 bufferedEther = _getBufferedEther();
+            require(depositsValue <= bufferedEther, "deposits more then buffered Ether");
             //depositsValue = depositsCount.mul(DEPOSIT_SIZE);
             /// @dev firstly update the local state of the contract to prevent a reentrancy attack,
             ///     even if the StakingRouter is a trusted contract.
+            console.log("_getBufferedEther: ", _getBufferedEther());
+            console.log("depositsValue: ", depositsValue);
             BUFFERED_ETHER_POSITION.setStorageUint256(_getBufferedEther().sub(depositsValue));
+            
             emit Unbuffered(depositsValue);
 
             uint256 newDepositedValidators = DEPOSITED_VALIDATORS_POSITION.getStorageUint256().add(depositsCount);
             DEPOSITED_VALIDATORS_POSITION.setStorageUint256(newDepositedValidators);
             emit DepositedValidatorsChanged(newDepositedValidators);
+
+            uint256 depositedAmountToValidators = CL_VALIDATORS_AMOUNT.getStorageUint256().add(depositsValue);
+            CL_VALIDATORS_AMOUNT.setStorageUint256(depositedAmountToValidators);
         }
 
         /// @dev transfer ether to StakingRouter and make a deposit at the same time. All the ether
         ///     sent to StakingRouter is counted as deposited. If StakingRouter can't deposit all
         ///     passed ether it MUST revert the whole transaction (never happens in normal circumstances)
-        stakingRouter.deposit.value(depositsValue)(depositsCount, _stakingModuleId, _depositCalldata, _amounts);
+        _stakingRouter().deposit.value(depositsValue)(depositsCount, _stakingModuleId, _depositCalldata, _amounts);
     }
 
     /// DEPRECATED PUBLIC METHODS
@@ -816,15 +825,20 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         if (_postClValidators > _preClValidators) {
             CL_VALIDATORS_POSITION.setStorageUint256(_postClValidators);
         }
-
+        console.log("_postCLValidators: ", _postClValidators);
+        console.log("_preCLValidators: ", _preClValidators);
         uint256 appearedValidators = _postClValidators - _preClValidators;
         preCLBalance = CL_BALANCE_POSITION.getStorageUint256();
         // Take into account the balance of the newly appeared validators
-        preCLBalance = preCLBalance.add(appearedValidators.mul(DEPOSIT_SIZE));
+        if (appearedValidators > 0) {
+            preCLBalance = preCLBalance.add(CL_VALIDATORS_AMOUNT.getStorageUint256());
+            CL_VALIDATORS_AMOUNT.setStorageUint256(0);
+        }
 
         // Save the current CL balance and validators to
         // calculate rewards on the next push
         CL_BALANCE_POSITION.setStorageUint256(_postClBalance);
+        
 
         emit CLValidatorsUpdated(_reportTimestamp, _preClValidators, _postClValidators);
     }
@@ -1095,11 +1109,13 @@ contract Lido is Versioned, StETHPermit, AragonApp {
     ///     i.e. submitted to the official Deposit contract but not yet visible in the CL state.
     /// @return transient balance in wei (1e-18 Ether)
     function _getTransientBalance() internal view returns (uint256) {
-        uint256 depositedValidators = DEPOSITED_VALIDATORS_POSITION.getStorageUint256();
-        uint256 clValidators = CL_VALIDATORS_POSITION.getStorageUint256();
+       // uint256 depositedValidators = DEPOSITED_VALIDATORS_POSITION.getStorageUint256();
+        //uint256 clValidators = CL_VALIDATORS_POSITION.getStorageUint256();
         // clValidators can never be less than deposited ones.
-        assert(depositedValidators >= clValidators);
-        return (depositedValidators - clValidators).mul(DEPOSIT_SIZE);
+        //assert(depositedValidators >= clValidators);
+        //return (depositedValidators - clValidators).mul(DEPOSIT_SIZE);
+        console.log("CL_VALIDATORS_AMOUNT: ", CL_VALIDATORS_AMOUNT.getStorageUint256());
+        return CL_VALIDATORS_AMOUNT.getStorageUint256();
     }
 
     /**

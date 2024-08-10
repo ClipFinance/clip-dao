@@ -272,9 +272,9 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
     )
   })
 
-  it('new validator gets the 32 ETH deposit from the pool', async () => {
+  it('new validator gets the 9 ETH deposit from the pool', async () => {
     assert.equals(await pool.getBufferedEther(), ETH(24), `rest eth is left`)
-    assert.equals(await pool.getTotalPooledEther(), ETH(56), 'total pooled ether')
+    assert.equals(await pool.getTotalPooledEther(), ETH(33), 'total pooled ether')
     assert.equals(
       await nodeOperatorsRegistry.getUnusedSigningKeyCount(0),
       0,
@@ -283,10 +283,10 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
   })
 
   it('first oracle report is taken as-is for Lido', async () => {
-    assert.equals(await pool.getTotalPooledEther(), ETH(56), '23 rest + 32 ETH deposit + 1 ETH initial')
-
-    // Reporting 1 ETH balance loss (32 => 31)
-    await pushReport(1, ETH(31))
+    assert.equals(await pool.getTotalPooledEther(), ETH(33), '32 + 1 ETH initial')
+    
+    // Reporting 1 ETH balance loss (9 => 8)
+    await pushReport(1, ETH(8))
 
     assert.equals(
       await token.getTotalShares(),
@@ -294,13 +294,13 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       'Total shares stay the same because no fee shares are added'
     )
 
-    assert.equals(await pool.getTotalPooledEther(), ETH(55), 'Total pooled Ether decreased')
+    assert.equals(await pool.getTotalPooledEther(), ETH(32), 'Total pooled Ether decreased')
 
     const clStat = await pool.getBeaconStat()
     assert.equals(clStat.depositedValidators, 1, 'validators count')
-    assert.equals(clStat.beaconBalance, ETH(31), 'Ether2 stat reported by the pool changed correspondingly')
+    assert.equals(clStat.beaconBalance, ETH(8), 'Ether2 stat reported by the pool changed correspondingly')
 
-    assert.equals(await pool.getBufferedEther(), ETH(1), 'Initial stake remains in the buffer')
+    assert.equals(await pool.getBufferedEther(), ETH(24), 'Initial stake remains in the buffer')
     assert.equals(await token.totalSupply(), StETH(32), 'Token total supply penalized')
 
     assert.equals(await token.sharesOf(user1), shares(32), 'User1 still holds 32 shares')
@@ -323,8 +323,8 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       'Old total pooled Ether 31 ETH od previous report + 1 ETH initial'
     )
 
-    // Reporting 2 ETH balance loss (31 => 29)
-    await pushReport(1, ETH(29))
+    // Reporting 2 ETH balance loss (8 => 6)
+    await pushReport(1, ETH(6))
 
     assert.equals(
       await token.getTotalShares(),
@@ -335,9 +335,9 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
 
     const ether2Stat = await pool.getBeaconStat()
     assert.equals(ether2Stat.depositedValidators, 1, 'deposited validators')
-    assert.equals(ether2Stat.beaconBalance, ETH(29), 'Ether2 stat reported by the pool changed correspondingly')
+    assert.equals(ether2Stat.beaconBalance, ETH(6), 'Ether2 stat reported by the pool changed correspondingly')
 
-    assert.equals(await pool.getBufferedEther(), ETH(1), 'Buffered Ether amount didnt change')
+    assert.equals(await pool.getBufferedEther(), ETH(24), 'Buffered Ether amount didnt change')
     assert.equals(await token.totalSupply(), StETH(30), 'Total supply accounts for penalties taken by the validator')
 
     expectedUser1Balance = bn(shares(32)).muln(30).divn(33) // New share price is 30/33 ETH/share
@@ -398,11 +398,11 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
     assert.equals(unusedKeys, 1, 'unused signing keys')
   })
 
-  it('the user deposits another 32 ETH to the pool', async () => {
+  it('the user deposits another 51 ETH to the pool', async () => {
     assert.equals(await token.totalSupply(), StETH(30), 'token total supply before')
     assert.equals(await token.getTotalShares(), shares(33), 'token total supply before')
 
-    await web3.eth.sendTransaction({ to: pool.address, from: user1, value: ETH(32) })
+    await web3.eth.sendTransaction({ to: pool.address, from: user1, value: ETH(51) })
     const block = await waitBlocks(await depositSecurityModule.getMinDepositBlockDistance())
     const keysOpIndex = await nodeOperatorsRegistry.getKeysOpIndex()
     const signatures = [
@@ -434,21 +434,21 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       1,
       keysOpIndex,
       '0x00',
-      signatures
+      signatures, 
+      [ETH(39)]
     )
 
     assert.equals(await depositContractMock.totalCalls(), 2)
 
     const ether2Stat = await pool.getBeaconStat()
     assert.equals(ether2Stat.depositedValidators, 2, 'deposited ether2')
-    assert.equals(ether2Stat.beaconBalance, ETH(29), 'remote ether2 as reported last time')
-
-    assert.equals(await pool.getBufferedEther(), ETH(1), 'Only initial ether is in the buffer')
-    assert.equals(await pool.getTotalPooledEther(), ETH(62), 'total pooled ether')
-    assert.equals(await token.totalSupply(), StETH(62), 'token total supply')
+    assert.equals(ether2Stat.beaconBalance, ETH(6), 'remote ether2 as reported last time')
+    assert.equals(await pool.getBufferedEther(), ETH(24 + 12), 'rest ether is in the buffer')
+    assert.equals(await pool.getTotalPooledEther(), ETH(30 + 51), 'total pooled ether')
+    assert.equals(await token.totalSupply(), StETH(29 + 1 + 51), 'token total supply')
 
     // 32 ETH deposit to shares if price is 30/33 ETH/shares
-    const sharesAdded = bn(ETH(32))
+    const sharesAdded = bn(ETH(51))
       .mul(bn(ETH(33)))
       .div(bn(shares(30)))
     expectedUser1Shares = bn(expectedUser1Shares).add(sharesAdded)
@@ -459,37 +459,38 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       'total shares are changed proportionally'
     )
 
-    expectedUser1Balance = bn(expectedUser1Balance).add(bn(StETH(32)))
+    expectedUser1Balance = bn(expectedUser1Balance).add(bn(StETH(51)))
     assert.equals(await token.balanceOf(user1), expectedUser1Balance, 'user1 tokens')
   })
 
   it('the oracle reports balance loss for the third time', async () => {
-    assert.equals(await pool.getTotalPooledEther(), ETH(62), 'Old total pooled Ether')
+    assert.equals(await pool.getTotalPooledEther(), ETH(81), 'Old total pooled Ether')
     const expectedTotalShares = bn(shares(1)).add(bn(expectedUser1Shares))
     assert.equals(await token.getTotalShares(), expectedTotalShares, 'Old total shares')
 
-    // Reporting 1 ETH balance loss ( total pooled 61 => 60)
-    await pushReport(1, ETH(28))
+    // Reporting 1 ETH balance loss ( total pooled 81 => 80)
+    await pushReport(1, ETH(9 - 3 - 1))
 
     assert.equals(
       await token.getTotalShares(),
       bn(shares(1)).add(expectedUser1Shares),
       'Total shares stay the same because no fee shares are added'
     )
-    assert.equals(await pool.getTotalPooledEther(), ETH(61), 'Total pooled Ether decreased')
+    
+    assert.equals(await pool.getTotalPooledEther(), ETH(29 + 51), 'Total pooled Ether decreased')
 
     const ether2Stat = await pool.getBeaconStat()
     assert.equals(ether2Stat.depositedValidators, 2, 'Another validator is deposited')
-    assert.equals(ether2Stat.beaconBalance, ETH(28), 'Ether2 stat reported by the pool changed correspondingly')
+    assert.equals(ether2Stat.beaconBalance, ETH(5), 'Ether2 stat reported by the pool changed correspondingly')
 
-    assert.equals(await pool.getBufferedEther(), ETH(1), 'Only initial ETH in the buffer')
-    assert.equals(await pool.getTotalPooledEther(), ETH(61), 'Total pooled Ether')
-    assert.equals(await token.totalSupply(), StETH(61), 'token total supply shrunk by loss taken')
+    assert.equals(await pool.getBufferedEther(), ETH(32 + 1 + 51 - 9 - 39), 'Only initial ETH in the buffer')
+    assert.equals(await pool.getTotalPooledEther(), ETH(29 + 51), 'Total pooled Ether')
+    assert.equals(await token.totalSupply(), StETH(29 + 51), 'token total supply shrunk by loss taken')
     assert.equals(await token.getTotalShares(), expectedTotalShares, 'total shares stays same')
 
     assert.equals(await token.sharesOf(user1), expectedUser1Shares, 'User1 shares stays same')
     expectedUser1Balance = bn(expectedUser1Shares) // New price
-      .mul(bn(StETH(61)))
+      .mul(bn(StETH(32 + 1 + 51 - 4)))
       .div(expectedTotalShares)
     assert.equals(await token.balanceOf(user1), expectedUser1Balance, 'Token user balances decreased')
 
@@ -502,7 +503,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
   })
 
   it(`user deposits another 32 ETH to the pool`, async () => {
-    assert.equals(await pool.getTotalPooledEther(), ETH(61), 'Old total pooled Ether')
+    assert.equals(await pool.getTotalPooledEther(), ETH(29 + 51), 'Old total pooled Ether')
     const oldTotalShares = bn(shares(1)).add(bn(expectedUser1Shares))
     assert.equals(await token.getTotalShares(), oldTotalShares, 'Old total shares')
 
@@ -530,19 +531,21 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       1,
       keysOpIndex,
       '0x',
-      signatures
+      signatures,
+      [ETH(32)]
     )
 
     const ether2Stat = await pool.getBeaconStat()
     assert.equals(ether2Stat.depositedValidators, 2, 'no validators have received the current deposit')
 
-    assert.equals(await pool.getBufferedEther(), ETH(33), '33 ETH is pooled')
-    assert.equals(await pool.getTotalPooledEther(), ETH(93), 'Total pooled Ether')
-    assert.equals(await token.totalSupply(), StETH(93), 'token total supply')
+    assert.equals(await pool.getBufferedEther(), ETH(32 + 1 + 51 + 32 - 9 - 39), '56 ETH is pooled')
+    assert.equals(await pool.getTotalPooledEther(), ETH(32 + 1 + 51 + 32 - 4), 'Total pooled Ether')
+    assert.equals(await token.totalSupply(), StETH(32 + 1 + 51 + 32 - 4), 'token total supply')
 
     const sharesAdded = bn(ETH(32))
       .mul(oldTotalShares)
-      .div(bn(ETH(61)))
+      .div(bn(ETH(32 + 1 + 51 - 4)))
+
     assert.equals(
       await token.getTotalShares(),
       oldTotalShares.add(sharesAdded),

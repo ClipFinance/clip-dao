@@ -205,7 +205,7 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         assembly {
             if iszero(_stakingModuleAddress) {
                 mstore(0, errorSelector)
-                mstore(4, _stakingModuleAddress)
+                mstore(4, "_stakingModuleAddress")
                 revert(0x1c, 0x24)
             }
         }

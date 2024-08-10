@@ -278,7 +278,8 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
       CURATED_MODULE_ID,
       keysOpIndex,
       '0x',
-      signatures
+      signatures, 
+      [ETH(32)]
     )
 
     assert.equals(await depositContractMock.totalCalls(), 26, 'total validators assigned')

@@ -820,8 +820,12 @@ contract('StakingRouter', ([deployer, lido, admin, appManager, stranger]) => {
     })
 
     it('deposit fails when module is not active', async () => {
+      const amounts = []
+      for (let i = 0; i < 100; ++i) {
+        amounts.push(ETH(32))
+      }
       await assert.revertsWithCustomError(
-        router.deposit(100, stakingModulesParams[0].expectedModuleId, '0x00', { value: ETH(32 * 100), from: lido }),
+        router.deposit(100, stakingModulesParams[0].expectedModuleId, '0x00', amounts, { value: ETH(32 * 100), from: lido }),
         'StakingModuleNotActive()'
       )
     })
