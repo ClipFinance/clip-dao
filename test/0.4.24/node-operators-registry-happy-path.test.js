@@ -226,9 +226,15 @@ contract('NodeOperatorsRegistry', ([appManager, rewards1, rewards2, rewards3, re
       attest.sign(guardians.privateKeys[guardians.addresses[1]]),
     ]
 
+    const amounts = []
+    for(let i = 0; i < stakesDeposited; ++i) {
+      amounts.push(ETH(32))
+    }
+
     // triggers flow:
     // DSM.depositBufferedEther() -> Lido.deposit() -> StakingRouter.deposit() -> Module.obtainDepositData()
-    await dsm.depositBufferedEther(block.number, block.hash, depositRoot, curatedId, keysOpIndex, '0x', signatures)
+    await dsm.depositBufferedEther(block.number, block.hash, depositRoot, curatedId, keysOpIndex, '0x', signatures, 
+      amounts)
 
     const depositCallCount = +(await depositContract.totalCalls())
     const stakingModuleSummary = await nor.getStakingModuleSummary()

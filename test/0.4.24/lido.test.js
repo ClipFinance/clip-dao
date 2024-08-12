@@ -1376,7 +1376,7 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
 
     // Next deposit changes nothing
     await web3.eth.sendTransaction({ to: app.address, from: user2, value: ETH(32) })
-    await app.methods['deposit(uint256,uint256,bytes,uint256[])'](MAX_DEPOSITS, CURATED_MODULE_ID, CALLDATA, \
+    await app.methods['deposit(uint256,uint256,bytes,uint256[])'](MAX_DEPOSITS, CURATED_MODULE_ID, CALLDATA, 
       [ETH(32)], { from: depositor })
     await checkStat({ depositedValidators: 3, beaconValidators: 0, beaconBalance: ETH(0) })
     assert.equals(await app.getTotalPooledEther(), ETH(178))

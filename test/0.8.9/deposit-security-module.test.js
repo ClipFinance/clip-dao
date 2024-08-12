@@ -146,6 +146,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
           DEPOSIT_NONCE,
           DEPOSIT_CALLDATA,
           [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
+          [],
           { from: stranger }
         )
         assert.emits(
@@ -171,7 +172,8 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             STAKING_MODULE,
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
-            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN2])]
+            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN2])],
+            []
           ),
           'InvalidSignature()'
         )
@@ -206,7 +208,8 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             STAKING_MODULE,
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
-            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])]
+            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
+            []
           ),
           'DepositRootChanged()'
         )
@@ -225,7 +228,8 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             STAKING_MODULE,
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
-            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])]
+            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
+            []
           ),
           'DepositNonceChanged()'
         )
@@ -249,7 +253,8 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             STAKING_MODULE,
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
-            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])]
+            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
+            []
           ),
           'DepositTooFrequent()'
         )
@@ -270,7 +275,8 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             STAKING_MODULE,
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
-            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])]
+            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
+            []
           ),
           'DepositInactiveModule()'
         )
@@ -288,7 +294,8 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             STAKING_MODULE,
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
-            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])]
+            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
+            []
           ),
           'DepositUnexpectedBlockHash()'
         )
@@ -304,7 +311,8 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             STAKING_MODULE,
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
-            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])]
+            [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
+            []
           ),
           'DepositUnexpectedBlockHash()'
         )
@@ -337,6 +345,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
           DEPOSIT_NONCE,
           DEPOSIT_CALLDATA,
           signatures,
+          [ETH(32)],
           { from: stranger }
         )
 
@@ -368,6 +377,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
           DEPOSIT_NONCE,
           DEPOSIT_CALLDATA,
           signatures,
+          [ETH(32)],
           { from: stranger }
         )
 
@@ -399,6 +409,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
           DEPOSIT_NONCE,
           DEPOSIT_CALLDATA,
           signatures,
+          [ETH(32)],
           { from: stranger }
         )
 
@@ -430,6 +441,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
           DEPOSIT_NONCE,
           DEPOSIT_CALLDATA,
           signatures,
+          [ETH(32)],
           { from: stranger }
         )
 
@@ -457,6 +469,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [],
+            [],
             { from: stranger }
           ),
           'DepositNoQuorum()'
@@ -477,6 +490,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             signatures,
+            [],
             { from: stranger }
           ),
           'SignaturesNotSorted()'
@@ -498,6 +512,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             signatures,
+            [],
             { from: stranger }
           ),
           'SignaturesNotSorted()'
@@ -519,6 +534,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             signatures,
+            [ETH(32)],
             { from: stranger }
           ),
           'InvalidSignature()'

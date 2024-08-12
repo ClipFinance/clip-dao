@@ -2,7 +2,7 @@ const { contract, artifacts } = require('hardhat')
 const { BN } = require('bn.js')
 const { assert } = require('../helpers/assert')
 const { ZERO_ADDRESS } = require('../helpers/constants')
-const { toBN, e9, e18, e27 } = require('../helpers/utils')
+const { toBN, e9, e18, e27, ETH } = require('../helpers/utils')
 const { deployProtocol } = require('../helpers/protocol')
 const { reportOracle, getSecondsPerFrame, getSlotTimestamp } = require('../helpers/oracle')
 const { advanceChainTime } = require('../helpers/blockchain')
@@ -96,7 +96,9 @@ contract('Lido, AccountingOracle, WithdrawalQueue integration', ([depositor, use
 
     it(`ether gets deposited to the CL`, async () => {
       await stakingModule.setAvailableKeysCount(10)
-      await lido.deposit(10, stakingModuleId, '0x0', { from: depositor })
+      await lido.deposit(10, stakingModuleId, '0x0', 
+        [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], 
+        { from: depositor })
       assert.equals(await lido.getBufferedEther(), 0)
 
       let stat = await lido.getBeaconStat()

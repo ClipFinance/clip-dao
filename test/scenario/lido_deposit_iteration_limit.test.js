@@ -116,6 +116,10 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
       validAttestMessage.sign(guardians.privateKeys[guardians.addresses[0]]),
       validAttestMessage.sign(guardians.privateKeys[guardians.addresses[1]]),
     ]
+    const amounts = [];
+    for (i = 0; i < 10; ++ i) {
+      amounts.push(ETH(32))
+    }
     await depositSecurityModule.depositBufferedEther(
       block.number,
       block.hash,
@@ -123,7 +127,8 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
       CURATED_MODULE_ID,
       keysOpIndex,
       '0x',
-      signatures
+      signatures,
+      amounts
     )
 
     // no more than depositIterationLimit validators are assigned in a single transaction
@@ -161,7 +166,8 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
       CURATED_MODULE_ID,
       keysOpIndex,
       '0x',
-      signatures
+      signatures,
+      [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)]
     )
 
     assert.equals(await depositContractMock.totalCalls(), 20, 'total validators assigned')
@@ -196,7 +202,8 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
       CURATED_MODULE_ID,
       keysOpIndex,
       '0x',
-      signatures
+      signatures,
+      [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)]
     )
 
     assert.equals(await depositContractMock.totalCalls(), 25)
@@ -241,7 +248,8 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
       CURATED_MODULE_ID,
       keysOpIndex,
       '0x',
-      signatures
+      signatures,
+      [ETH(32)]
     )
 
     assert.equals(await depositContractMock.totalCalls(), 26)

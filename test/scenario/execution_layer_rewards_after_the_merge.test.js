@@ -244,15 +244,17 @@ contract('Lido: merge acceptance', (addresses) => {
       validAttestMessage.sign(guardians.privateKeys[guardians.addresses[0]]),
       validAttestMessage.sign(guardians.privateKeys[guardians.addresses[1]]),
     ]
-    await depositSecurityModule.depositBufferedEther(
-      block.number,
-      block.hash,
-      depositRoot,
-      CURATED_MODULE_ID,
-      keysOpIndex,
-      '0x',
-      signatures
-    )
+    await assert.reverts(
+      depositSecurityModule.depositBufferedEther(
+        block.number,
+        block.hash,
+        depositRoot,
+        CURATED_MODULE_ID,
+        keysOpIndex,
+        '0x',
+        signatures,
+        [ETH(32)]
+      ), "deposits more then buffered Ether")
 
     // No Ether was deposited yet to the validator contract
     assert.equals(await depositContractMock.totalCalls(), 0)
@@ -301,7 +303,8 @@ contract('Lido: merge acceptance', (addresses) => {
       CURATED_MODULE_ID,
       keysOpIndex,
       '0x',
-      signatures
+      signatures,
+      [ETH(32)]
     )
 
     // The first 32 ETH chunk was deposited to the deposit contract,
@@ -364,7 +367,8 @@ contract('Lido: merge acceptance', (addresses) => {
       CURATED_MODULE_ID,
       keysOpIndex,
       '0x',
-      signatures
+      signatures, 
+      [ETH(32)]
     )
 
     // The first 32 ETH chunk was deposited to the deposit contract,
