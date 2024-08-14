@@ -3,8 +3,6 @@
 
 pragma solidity 0.4.24;
 
-import "hardhat/console.sol";
-
 /**
   * @dev This is a mock. Don't use in production.
   */
@@ -30,9 +28,7 @@ contract DepositContractMock {
         external
         payable
     {
-        console.log("hmm");
         calls.push(Call(pubkey, withdrawal_credentials, signature, deposit_data_root, msg.value));
-       // to.transfer(msg.value);
     }
 
     function totalCalls() external view returns (uint256) {

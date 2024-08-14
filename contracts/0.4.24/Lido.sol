@@ -16,7 +16,6 @@ import "../common/lib/Math256.sol";
 import "./StETHPermit.sol";
 
 import "./utils/Versioned.sol";
-import "hardhat/console.sol";
 
 interface IPostTokenRebaseReceiver {
     function handlePostTokenRebase(
@@ -714,8 +713,6 @@ contract Lido is Versioned, StETHPermit, AragonApp {
             //depositsValue = depositsCount.mul(DEPOSIT_SIZE);
             /// @dev firstly update the local state of the contract to prevent a reentrancy attack,
             ///     even if the StakingRouter is a trusted contract.
-            console.log("_getBufferedEther: ", _getBufferedEther());
-            console.log("depositsValue: ", depositsValue);
             BUFFERED_ETHER_POSITION.setStorageUint256(_getBufferedEther().sub(depositsValue));
             
             emit Unbuffered(depositsValue);
@@ -825,8 +822,6 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         if (_postClValidators > _preClValidators) {
             CL_VALIDATORS_POSITION.setStorageUint256(_postClValidators);
         }
-        console.log("_postCLValidators: ", _postClValidators);
-        console.log("_preCLValidators: ", _preClValidators);
         uint256 appearedValidators = _postClValidators - _preClValidators;
         preCLBalance = CL_BALANCE_POSITION.getStorageUint256();
         // Take into account the balance of the newly appeared validators
@@ -1114,7 +1109,6 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         // clValidators can never be less than deposited ones.
         //assert(depositedValidators >= clValidators);
         //return (depositedValidators - clValidators).mul(DEPOSIT_SIZE);
-        console.log("CL_VALIDATORS_AMOUNT: ", CL_VALIDATORS_AMOUNT.getStorageUint256());
         return CL_VALIDATORS_AMOUNT.getStorageUint256();
     }
 

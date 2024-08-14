@@ -53,3 +53,5 @@ foundry/out
 
 logs
 **/verificator_diffs/
+
+.env

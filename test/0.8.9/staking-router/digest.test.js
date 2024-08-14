@@ -123,6 +123,7 @@ contract('StakingRouter', ([deployer, lido, admin, appManager, stranger]) => {
       )
     })
     it('getNodeOperatorDigests(uint256,uint256,uint256) - module2 without operators', async () => {
+      console.log("cehehe")
       let digests = await router.methods[`getNodeOperatorDigests(uint256,uint256,uint256)`](module2Id, 0, 0)
       assert.equal(digests.length, 0)
 

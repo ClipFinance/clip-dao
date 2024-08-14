@@ -57,16 +57,16 @@ contract('StakingRouter', ([depositor, stranger]) => {
       const depositsCount = 150
 
       await assert.reverts(
-        lido.deposit(depositsCount, curatedModuleId, '0x', { from: stranger }),
+        lido.deposit(depositsCount, curatedModuleId, '0x', [ETH(32)], { from: stranger }),
         'APP_AUTH_DSM_FAILED'
       )
-      await assert.reverts(lido.deposit(depositsCount, curatedModuleId, '0x', { from: voting }), 'APP_AUTH_DSM_FAILED')
+      await assert.reverts(lido.deposit(depositsCount, curatedModuleId, '0x', [ETH(32)], { from: voting }), 'APP_AUTH_DSM_FAILED')
     })
 
     it('reverts if deposit() not from lido address', async () => {
       const depositsCount = 150
       await assert.reverts(
-        router.deposit(depositsCount, curatedModuleId, '0x', { from: voting }),
+        router.deposit(depositsCount, curatedModuleId, '0x', [ETH(32)], { from: voting }),
         'AppAuthLidoFailed()'
       )
     })
@@ -120,7 +120,7 @@ contract('StakingRouter', ([depositor, stranger]) => {
 
       const depositsCount = 100
       await assert.reverts(
-        lido.deposit(depositsCount, curatedModuleId, '0x', { from: depositor }),
+        lido.deposit(depositsCount, curatedModuleId, '0x', [ETH(32)], { from: depositor }),
         `EmptyWithdrawalsCredentials()`
       )
 
@@ -147,8 +147,12 @@ contract('StakingRouter', ([depositor, stranger]) => {
       await operators.setNodeOperatorStakingLimit(1, 100000, { from: voting })
 
       const depositsCount = 100
+      const amounts = []
+      for (let i = 0; i < depositsCount; ++i) {
+        amounts.push(ETH(32))
+      }
 
-      const receipt = await lido.deposit(depositsCount, curatedModuleId, '0x', {
+      const receipt = await lido.deposit(depositsCount, curatedModuleId, '0x', amounts, {
         from: depositor,
       })
       const currentBlockNumber = await web3.eth.getBlockNumber()
@@ -219,7 +223,7 @@ contract('StakingRouter', ([depositor, stranger]) => {
       // allow tx `StakingRouter.deposit()` from the Lido contract addr
       await ethers.provider.send('hardhat_impersonateAccount', [lido.address])
       const value = ETH(0)
-      const receipt = await router.deposit(depositsCount, curatedModuleId, '0x', { from: lido.address, value })
+      const receipt = await router.deposit(depositsCount, curatedModuleId, '0x', [], { from: lido.address, value })
 
       assert.emits(receipt, 'StakingRouterETHDeposited', { stakingModuleId: curatedModuleId, amount: value })
 
@@ -236,7 +240,7 @@ contract('StakingRouter', ([depositor, stranger]) => {
 
       const value = ETH(1)
       await assert.reverts(
-        router.deposit(depositsCount, curatedModuleId, '0x', { from: lido.address, value }),
+        router.deposit(depositsCount, curatedModuleId, '0x', [ETH(32)], { from: lido.address, value }),
         `InvalidDepositsValue(${value}, ${depositsCount})`
       )
     })

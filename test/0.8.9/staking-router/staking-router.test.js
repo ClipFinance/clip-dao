@@ -77,6 +77,7 @@ contract('StakingRouter', ([deployer, lido, admin, appManager, stranger]) => {
     })
 
     it('init fails on wrong input', async () => {
+      console.log("Want to check this");
       await assert.revertsWithCustomError(
         router.initialize(ZERO_ADDRESS, lido, wc, { from: deployer }),
         'ZeroAddress("_admin")'
@@ -199,7 +200,7 @@ contract('StakingRouter', ([deployer, lido, admin, appManager, stranger]) => {
 
     it('deposit fails without role', async () => {
       await assert.revertsWithCustomError(
-        stakingRouterImplementation.deposit(100, 0, '0x00', { from: stranger }),
+        stakingRouterImplementation.deposit(100, 0, '0x00', [ETH(32)], { from: stranger }),
         `AppAuthLidoFailed()`
       )
     })

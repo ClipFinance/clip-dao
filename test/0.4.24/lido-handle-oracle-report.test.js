@@ -291,7 +291,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
   describe('clBalance', async () => {
     beforeEach(async () => {
-      await lido.deposit(3, 1, '0x', { from: depositor })
+      await lido.deposit(3, 1, '0x', [], { from: depositor })
       await checkStat({ depositedValidators: 3, beaconValidators: 0, beaconBalance: 0 })
       await checkBalanceDeltas({
         totalPooledEtherDiff: 0,
@@ -379,7 +379,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
   describe('sanity checks', async () => {
     beforeEach(async () => {
-      await lido.deposit(3, 1, '0x', { from: depositor })
+      await lido.deposit(3, 1, '0x', [ETH(32), ETH(32), ETH(32)], { from: depositor })
     })
 
     it('reverts on reported more than deposited', async () => {
@@ -680,7 +680,11 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
     it('does not revert on validators reported under limit', async () => {
       await lido.submit(ZERO_ADDRESS, { from: stranger, value: ETH(3100), gasPrice: 1 })
-      await lido.deposit(100, 1, '0x', { from: depositor })
+      const amounts = []
+      for (let i = 0; i < 96; ++i) {
+        amounts.push(i)
+      }
+      await lido.deposit(100, 1, '0x', amounts, { from: depositor })
       await oracleReportSanityChecker.setOracleReportLimits(
         {
           ...ORACLE_REPORT_LIMITS_BOILERPLATE,
@@ -704,7 +708,11 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
     it('reverts on validators reported when over limit', async () => {
       await lido.submit(ZERO_ADDRESS, { from: stranger, value: ETH(3200), gasPrice: 1 })
-      await lido.deposit(101, 1, '0x', { from: depositor })
+      const amounts = []
+      for (let i = 0; i < 100; ++i) {
+        amounts.push(i)
+      }
+      await lido.deposit(101, 1, '0x', amounts, { from: depositor })
       await oracleReportSanityChecker.setOracleReportLimits(
         {
           ...ORACLE_REPORT_LIMITS_BOILERPLATE,
@@ -730,7 +738,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
   describe('smooth report', async () => {
     beforeEach(async () => {
-      await lido.deposit(3, 1, '0x', { from: depositor })
+      await lido.deposit(3, 1, '0x', [ETH(32), ETH(32), ETH(32)], { from: depositor })
       await checkStat({ depositedValidators: 3, beaconValidators: 0, beaconBalance: 0 })
       await checkBalanceDeltas({
         totalPooledEtherDiff: 0,
@@ -1328,7 +1336,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
   describe('daily reports', async () => {
     beforeEach(async () => {
-      await lido.deposit(3, 1, '0x', { from: depositor })
+      await lido.deposit(3, 1, '0x', [ETH(32), ETH(32), ETH(32)], { from: depositor })
       await checkStat({ depositedValidators: 3, beaconValidators: 0, beaconBalance: 0 })
       await checkBalanceDeltas({
         totalPooledEtherDiff: 0,
@@ -1913,7 +1921,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
   describe('reports with withdrawals finalization', () => {
     beforeEach(async () => {
-      await lido.deposit(3, 1, '0x', { from: depositor })
+      await lido.deposit(3, 1, '0x', [ETH(32), ETH(32), ETH(32)], { from: depositor })
       await checkStat({ depositedValidators: 3, beaconValidators: 0, beaconBalance: 0 })
       await checkBalanceDeltas({
         totalPooledEtherDiff: 0,
@@ -2358,7 +2366,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
   describe('100% of rewards receive staking module & treasury', () => {
     beforeEach(async () => {
-      await lido.deposit(3, 1, '0x', { from: depositor })
+      await lido.deposit(3, 1, '0x', [ETH(32), ETH(32), ETH(32)], { from: depositor })
       await checkStat({ depositedValidators: 3, beaconValidators: 0, beaconBalance: 0 })
       await checkBalanceDeltas({
         totalPooledEtherDiff: 0,

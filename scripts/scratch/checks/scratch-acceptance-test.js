@@ -130,7 +130,7 @@ async function checkSubmitDepositReportWithdrawal(protocol, state, user1, user2)
   assert.equals(await lido.getTotalPooledEther(), initialLidoBalance + BigInt(ETH(34)))
   assert.equals(await lido.getBufferedEther(), initialLidoBalance + BigInt(ETH(34)))
 
-  await lido.deposit(MAX_DEPOSITS, CURATED_MODULE_ID, CALLDATA, { from: depositSecurityModule.address })
+  await lido.deposit(MAX_DEPOSITS, CURATED_MODULE_ID, CALLDATA, [ETH(32)], { from: depositSecurityModule.address })
   log.success('Ether deposited')
 
 

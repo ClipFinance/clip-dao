@@ -423,10 +423,10 @@
   ],
   "daoInitialSettings": {
     "voting": {
-      "minSupportRequired": "500000000000000000",
-      "minAcceptanceQuorum": "50000000000000000",
-      "voteDuration": 900,
-      "objectionPhaseDuration": 300
+      "minSupportRequired": "100000000000000000",
+      "minAcceptanceQuorum": "10000000000000000",
+      "voteDuration": 90,
+      "objectionPhaseDuration": 60
     },
     "fee": {
       "totalPercent": 10,
@@ -434,8 +434,8 @@
       "nodeOperatorsPercent": 50
     },
     "token": {
-      "name": "TEST Lido DAO Token",
-      "symbol": "TLDO"
+      "name": "TEST CLIP DAO Token",
+      "symbol": "TCDO"
     }
   },
   "deployCommit": "eda16728a7c80f1bb55c3b91c668aae190a1efb0",

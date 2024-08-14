@@ -141,17 +141,30 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
      * @param _withdrawalCredentials Lido withdrawal vault contract address
      */
     function initialize(address _admin, address _lido, bytes32 _withdrawalCredentials) external {
+        
         bytes4 errorSelector = ZeroAddress.selector;
         assembly {
             if iszero(_admin) {
+                /*let ptr := mload(0x40)
+                mstore(ptr, errorSelector)
+                mstore(add(ptr, 0x4), 0x20)
+                mstore(add(ptr, 0x24), 0x6)
+                mstore(add(ptr, 0x44), "_admin")
+                revert(ptr, 0x64)*/
                 mstore(0, errorSelector)
-                mstore(4, "_admin")
-                revert(0x1c, 0x24)
+                mstore(0x4, 0x20)
+                mstore(0x24, 0x6)
+                mstore(0x44, "_admin")
+                revert(0, 0x64)
             }
+        }
+        assembly {
             if iszero(_lido) {
                 mstore(0, errorSelector)
-                mstore(4, "_lido")
-                revert(0x1c, 0x24)
+                mstore(0x4, 0x20)
+                mstore(0x24, 0x5)
+                mstore(0x44, "_lido")
+                revert(0, 0x64)
             }
         }
         //if (_admin == address(0)) revert ZeroAddress("_admin");
@@ -168,7 +181,12 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
 
     /// @dev prohibit direct transfer to contract
     receive() external payable {
-        revert DirectETHTransfer();
+        //revert DirectETHTransfer();
+        bytes4 errorSelector = DirectETHTransfer.selector;
+        assembly {
+            mstore(0, errorSelector)
+            revert(0, 4)
+        }
     }
 
     /**
@@ -196,17 +214,21 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         bytes4 errorSelector = ValueOver100Percent.selector;
         assembly {
             if gt(_targetShare, TOTAL_BASIS_POINTS) {
-                mstore(0, errorSelector)
-                mstore(4, "_targetShare")
-                revert(0x1c, 0x24)
+                mstore(0x0, errorSelector)
+                mstore(0x4, 0x20)
+                mstore(0x24, 12)
+                mstore(0x44, "_targetShare")
+                revert(0x0, 0x64)
             }
         }
         errorSelector = ZeroAddress.selector;
         assembly {
             if iszero(_stakingModuleAddress) {
                 mstore(0, errorSelector)
-                mstore(4, "_stakingModuleAddress")
-                revert(0x1c, 0x24)
+                mstore(0x4, 0x20)
+                mstore(0x24, 21)
+                mstore(0x44, "_stakingModuleAddress")
+                revert(0x0, 0x64)
             }
         }
         /*if (_targetShare > TOTAL_BASIS_POINTS)
@@ -219,21 +241,26 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
             revert StakingModuleWrongName();
 
         uint256 newStakingModuleIndex = getStakingModulesCount();
-
+        
         errorSelector = StakingModulesLimitExceeded.selector;
+        
         assembly {
             if gt(newStakingModuleIndex, sub(MAX_STAKING_MODULES_COUNT, 1)) {
                 mstore(0, errorSelector)
-                revert(0x1c, 0x04)
+                revert(0x0, 0x04)
             }
         }
 
         //if (newStakingModuleIndex >= MAX_STAKING_MODULES_COUNT)
           //  revert StakingModulesLimitExceeded();
-
         for (uint256 i; i < newStakingModuleIndex; ) {
-            if (_stakingModuleAddress == _getStakingModuleByIndex(i).stakingModuleAddress)
-                revert StakingModuleAddressExists();
+            if (_stakingModuleAddress == _getStakingModuleByIndex(i).stakingModuleAddress) {
+                errorSelector = StakingModuleAddressExists.selector;
+                assembly{
+                    mstore(0, errorSelector)
+                    revert(0, 0x04)
+                }
+            }
             unchecked {
                 ++i;
             }
@@ -643,7 +670,7 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
     function getStakingModuleIds() public view returns (uint256[] memory stakingModuleIds) {
         uint256 stakingModulesCount = getStakingModulesCount();
         stakingModuleIds = new uint256[](stakingModulesCount);
-        for (uint256 i; i < stakingModulesCount; ++i) {
+        for (uint256 i; i < stakingModulesCount;) {
             stakingModuleIds[i] = _getStakingModuleByIndex(i).id;
             unchecked {
                 ++i;

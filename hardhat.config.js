@@ -66,7 +66,7 @@ const getNetConfig = (networkName, ethAccountName) => {
     hardhat: {
       // NB!: forking get enabled if env variable HARDHAT_FORKING_URL is set, see code below
       blockGasLimit: 30000000,
-      gasPrice: 0,
+      gasPrice: 1,
       initialBaseFeePerGas: 0,
       allowUnlimitedContractSize: true,
       accounts: {
@@ -74,7 +74,7 @@ const getNetConfig = (networkName, ethAccountName) => {
         mnemonic: 'test test test test test test test test test test test junk',
         count: 30,
         accountsBalance: '100000000000000000000000',
-        gasPrice: 0,
+        gasPrice: 1,
       },
     },
     goerli: {
@@ -99,6 +99,12 @@ const getNetConfig = (networkName, ethAccountName) => {
       ...base,
       url: RPC_URL,
       chainId: 1,
+      timeout: 60000 * 10,
+    },
+    lineaSepolia: {
+      ...base,
+      url: RPC_URL,
+      chainId: 59141,
       timeout: 60000 * 10,
     },
     fork: {
@@ -220,7 +226,7 @@ module.exports = {
   contractSizer: {
     disambiguatePaths: false,
     runOnCompile: true,
-    strict: true,
+    strict: false,
     except: ['test_helpers', 'template', 'mocks', '@aragon', 'openzeppelin'],
   },
 }

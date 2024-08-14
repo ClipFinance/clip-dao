@@ -653,6 +653,7 @@ contract('Lido: rewards distribution math', (addresses) => {
 
   it(`add another staking module`, async () => {
     anotherCuratedModule = await setupNodeOperatorsRegistry(deployed)
+    console.log("checck it")
     await stakingRouter.addStakingModule(
       'Curated limited',
       anotherCuratedModule.address,

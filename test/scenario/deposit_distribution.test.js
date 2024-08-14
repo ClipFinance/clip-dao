@@ -82,8 +82,12 @@ contract('StakingRouter', ([depositor, stranger1, address1, address2]) => {
       assert.equals(keysAllocation.allocations, [100, 100])
 
       const [curatedModule] = await stakingRouter.getStakingModules()
+      const amounts = []
+      for (let i = 0; i < maxDepositsCount; ++i) {
+        amounts.push(ETH(32))
+      }
 
-      await lido.deposit(maxDepositsCount, curatedModule.id, '0x', { from: depositor, gasPrice: 10 })
+      await lido.deposit(maxDepositsCount, curatedModule.id, '0x', amounts, { from: depositor, gasPrice: 10 })
 
       assert.equals(await depositContract.totalCalls(), 100, 'invalid deposits count')
 

@@ -91,7 +91,8 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
     assert.equal(await getBalance(lido), initialLidoETHBalance + unaccountedLidoETHBalance + submitAmount)
 
     const maxDepositsCount = 10
-    await lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, { from: depositor })
+    await lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, 
+      [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor })
 
     assert.equals(await getBalance(stakingRouter), initialStakingRouterBalance)
     const depositedEther = wei`32 ether` * wei.min(maxDepositsCount, DEPOSITABLE_VALIDATORS_COUNT)
@@ -120,7 +121,7 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
 
       const maxDepositsCount = 10
       await assert.reverts(
-        lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, { from: depositor }),
+        lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor }),
         'InvalidPublicKeysBatchLength',
         [PUBKEY_LENGTH * depositDataLength, PUBKEY_LENGTH * DEPOSITABLE_VALIDATORS_COUNT]
       )
@@ -148,7 +149,7 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
 
       const maxDepositsCount = 10
       await assert.reverts(
-        lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, { from: depositor }),
+        lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor }),
         'InvalidPublicKeysBatchLength',
         [PUBKEY_LENGTH * depositDataLength, PUBKEY_LENGTH * DEPOSITABLE_VALIDATORS_COUNT]
       )
@@ -176,7 +177,7 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
 
       const maxDepositsCount = 10
       await assert.reverts(
-        lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, { from: depositor }),
+        lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor }),
         'InvalidSignaturesBatchLength',
         [SIGNATURE_LENGTH * depositDataLength, SIGNATURE_LENGTH * DEPOSITABLE_VALIDATORS_COUNT]
       )
@@ -201,7 +202,7 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       await stubObtainDepositDataReturns(...keys.slice(), keys.tos)
 
       const maxDepositsCount = 10
-      await assert.reverts(lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, { from: depositor }))
+      await assert.reverts(lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor }))
     })
 
     it('StakingModule reverted on obtainData', async () => {
@@ -219,7 +220,7 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
 
       const maxDepositsCount = 10
       await assert.reverts(
-        lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, { from: depositor }),
+        lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor }),
         'INVALID_ALLOCATED_KEYS_COUNT'
       )
     })
@@ -231,7 +232,7 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       const stakingModuleStateBefore = await stakingRouter.getStakingModule(STAKING_MODULE_ID)
 
       const maxDepositsCount = 0
-      await lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, { from: depositor })
+      await lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, [], { from: depositor })
 
       const stakingModuleStateAfter = await stakingRouter.getStakingModule(STAKING_MODULE_ID)
 
