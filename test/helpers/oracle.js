@@ -9,6 +9,7 @@ function getReportDataItems(r) {
     String(r.consensusVersion),
     String(r.refSlot),
     String(r.numValidators),
+    r.clValidatorsAmounts.map(String),
     String(r.clBalanceGwei),
     r.stakingModuleIdsWithNewlyExitedValidators.map(String),
     r.numExitedValidatorsByStakingModule.map(String),
@@ -27,7 +28,7 @@ function getReportDataItems(r) {
 function calcReportDataHash(reportItems) {
   const data = web3.eth.abi.encodeParameters(
     [
-      '(uint256,uint256,uint256,uint256,uint256[],uint256[],uint256,uint256,uint256,uint256[],uint256,bool,uint256,bytes32,uint256)',
+      '(uint256,uint256,uint256,uint256[],uint256,uint256[],uint256[],uint256,uint256,uint256,uint256[],uint256,bool,uint256,bytes32,uint256)',
     ],
     [reportItems]
   )
@@ -38,6 +39,7 @@ const DEFAULT_REPORT_FIELDS = {
   consensusVersion: 1,
   refSlot: 0,
   numValidators: 0,
+  clValidatorsAmounts: [],
   clBalanceGwei: 0,
   stakingModuleIdsWithNewlyExitedValidators: [],
   numExitedValidatorsByStakingModule: [],
@@ -60,7 +62,7 @@ async function prepareOracleReport({ clBalance, ...restFields }) {
     ...restFields,
     clBalanceGwei: toBN(clBalance).div(E9),
   }
-
+  
   const items = getReportDataItems(fields)
   const hash = calcReportDataHash(items)
 
@@ -77,6 +79,7 @@ async function triggerConsensusOnHash(hash, consensus) {
 
 async function reportOracle(consensus, oracle, reportFields) {
   const { refSlot } = await consensus.getCurrentFrame()
+  console.log("reportOracle: ", reportFields)
   const report = await prepareOracleReport({ ...reportFields, refSlot })
 
   // non-empty extra data is not supported here yet
@@ -95,8 +98,9 @@ async function reportOracle(consensus, oracle, reportFields) {
 }
 
 // FIXME: kept for compat, remove after refactoring tests
-function pushOracleReport(consensus, oracle, numValidators, clBalance, elRewardsVaultBalance) {
-  return reportOracle(consensus, oracle, { numValidators, clBalance, elRewardsVaultBalance })
+function pushOracleReport(consensus, oracle, numValidators, clValidatorsAmounts, clBalance, elRewardsVaultBalance) {
+  console.log("pushOracleReport: ", clValidatorsAmounts)
+  return reportOracle(consensus, oracle, { numValidators, clBalance, clValidatorsAmounts, elRewardsVaultBalance })
 }
 
 async function getSecondsPerFrame(consensus) {

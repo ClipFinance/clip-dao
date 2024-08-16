@@ -176,11 +176,15 @@ contract('Lido, AccountingOracle, WithdrawalQueue integration', ([depositor, use
 
         const timestamp = await getSlotTimestamp(+refSlot, consensus)
         const secondsElapsed = secondsPerFrame
-
+        const clValidatorsAmounts = [];
+        for (let i = 0; i < oracleReportFields.numValidators; ++i) {
+          clValidatorsAmount.push(ETH(32))
+        }
         const [totalEth, totalShares, withdrawals, elRewards] = await lido.handleOracleReport.call(
           timestamp,
           secondsElapsed,
           oracleReportFields.numValidators,
+          clValidatorsAmounts,
           oracleReportFields.clBalance,
           oracleReportFields.withdrawalVaultBalance,
           oracleReportFields.elRewardsVaultBalance,

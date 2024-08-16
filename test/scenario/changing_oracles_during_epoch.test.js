@@ -25,6 +25,7 @@ contract('AccountingOracle', ([voting, malicious1, malicious2, member1, member2,
   const GOOD_DATA = {
     consensusVersion: CONSENSUS_VERSION,
     numValidators: 10,
+    clValidatorsAmounts: [ETH(32)],
     clBalanceGwei: 32,
     stakingModuleIdsWithNewlyExitedValidators: [],
     numExitedValidatorsByStakingModule: [],

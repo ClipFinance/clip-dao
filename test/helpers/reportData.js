@@ -12,7 +12,7 @@ function getValidatorsExitBusReportDataItems(r) {
 function calcAccountingReportDataHash(reportItems) {
   const data = web3.eth.abi.encodeParameters(
     [
-      '(uint256,uint256,uint256,uint256,uint256[],uint256[],uint256,uint256,uint256,uint256[],uint256,bool,uint256,bytes32,uint256)',
+      '(uint256,uint256,uint256,uint256[],uint256,uint256[],uint256[],uint256,uint256,uint256,uint256[],uint256,bool,uint256,bytes32,uint256)',
     ],
     [reportItems]
   )
@@ -23,6 +23,7 @@ function getAccountingReportDataItems(r) {
     String(r.consensusVersion),
     String(r.refSlot),
     String(r.numValidators),
+    r.clValidatorsAmounts.map(String),
     String(r.clBalanceGwei),
     r.stakingModuleIdsWithNewlyExitedValidators.map(String),
     r.numExitedValidatorsByStakingModule.map(String),

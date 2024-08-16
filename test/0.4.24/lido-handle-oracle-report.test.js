@@ -43,6 +43,7 @@ const DEFAULT_LIDO_ORACLE_REPORT = {
   reportTimestamp: 0, // uint256, seconds
   timeElapsed: 0, // uint256, seconds
   clValidators: 0, // uint256, counter
+  clValidatorsAmounts: [0],
   postCLBalance: ETH(0), // uint256, wei
   withdrawalVaultBalance: ETH(0), // uint256, wei
   elRewardsVaultBalance: ETH(0), // uint256, wei
@@ -291,7 +292,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
   describe('clBalance', async () => {
     beforeEach(async () => {
-      await lido.deposit(3, 1, '0x', [], { from: depositor })
+      await lido.deposit(3, 1, '0x', [ETH(32), ETH(32), ETH(32)], { from: depositor })
       await checkStat({ depositedValidators: 3, beaconValidators: 0, beaconBalance: 0 })
       await checkBalanceDeltas({
         totalPooledEtherDiff: 0,
@@ -304,10 +305,12 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
     })
 
     it('first report after deposit without rewards', async () => {
+      console.log(...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 1, clValidatorsAmounts: [ETH(32)], postCLBalance: ETH(32) }))
       const tx = await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 1, postCLBalance: ETH(32) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 1, clValidatorsAmounts: [ETH(32)], postCLBalance: ETH(32) }),
         { from: oracle }
       )
+
       await checkEvents({
         tx,
         preCLValidators: 0,
@@ -342,6 +345,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           ...DEFAULT_LIDO_ORACLE_REPORT,
           timeElapsed: ONE_YEAR,
           clValidators: 1,
+          clValidatorsAmounts: [ETH(32)],
           postCLBalance: ETH(33),
         }),
         { from: oracle }
@@ -391,12 +395,14 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
     it('reverts on reported less than reported previously', async () => {
       await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, 
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)], postCLBalance: ETH(96) }),
         { from: oracle }
       )
       await checkStat({ depositedValidators: 3, beaconValidators: 3, beaconBalance: ETH(96) })
       await assert.reverts(
-        lido.handleOracleReport(...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 2 }), { from: oracle }),
+        lido.handleOracleReport(...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 2, 
+          clValidatorsAmounts: [ETH(32), ETH(32)] }), { from: oracle }),
         'REPORTED_LESS_VALIDATORS'
       )
     })
@@ -430,7 +436,8 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
 
     it('does not revert on new total balance stay the same', async () => {
       let tx = await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96), 
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]}),
         { from: oracle }
       )
       await checkEvents({
@@ -459,7 +466,8 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
         initialHolderBalanceDiff: 0,
       })
       tx = await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96), 
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)] }),
         { from: oracle }
       )
       await checkEvents({
@@ -494,7 +502,8 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
       await oracleReportSanityChecker.setOracleReportLimits(ORACLE_REPORT_LIMITS_BOILERPLATE, { from: voting })
 
       let tx = await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96), 
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)] }),
         { from: oracle }
       )
       await checkEvents({
@@ -523,7 +532,8 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
         initialHolderBalanceDiff: 0,
       })
       tx = await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(95.04) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(95.04), 
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]}),
         { from: oracle }
       )
       await checkEvents({
@@ -559,7 +569,8 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
       await oracleReportSanityChecker.setOracleReportLimits(ORACLE_REPORT_LIMITS_BOILERPLATE, { from: voting })
 
       await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96), 
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)] }),
         { from: oracle }
       )
       await checkStat({ depositedValidators: 3, beaconValidators: 3, beaconBalance: ETH(96) })
@@ -573,7 +584,9 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
       })
       await assert.reverts(
         lido.handleOracleReport(
-          ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(95.03) }),
+          ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(95.03),
+            clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
+           }),
           { from: oracle }
         ),
         'IncorrectCLBalanceDecrease(101)'
@@ -591,7 +604,9 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
       )
 
       await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
+         }),
         { from: oracle }
       )
       await checkStat({ depositedValidators: 3, beaconValidators: 3, beaconBalance: ETH(96) })
@@ -609,6 +624,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           timeElapsed: ONE_YEAR,
           clValidators: 3,
           postCLBalance: ETH(96.96),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle }
       )
@@ -652,7 +668,9 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
       )
 
       await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
+         }),
         { from: oracle }
       )
       await checkStat({ depositedValidators: 3, beaconValidators: 3, beaconBalance: ETH(96) })
@@ -671,6 +689,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
             timeElapsed: ONE_YEAR,
             clValidators: 3,
             postCLBalance: ETH(96.97),
+            clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
           }),
           { from: oracle }
         ),
@@ -681,8 +700,8 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
     it('does not revert on validators reported under limit', async () => {
       await lido.submit(ZERO_ADDRESS, { from: stranger, value: ETH(3100), gasPrice: 1 })
       const amounts = []
-      for (let i = 0; i < 96; ++i) {
-        amounts.push(i)
+      for (let i = 0; i < 97; ++i) {
+        amounts.push(ETH(32))
       }
       await lido.deposit(100, 1, '0x', amounts, { from: depositor })
       await oracleReportSanityChecker.setOracleReportLimits(
@@ -694,12 +713,18 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
         { from: voting, gasPrice: 1 }
       )
 
+      const clValidatorsAmounts = [];
+      for (let i = 0; i < 100; ++i) {
+        clValidatorsAmounts.push(ETH(32))
+      }
+      console.log("TTTTTTTTTTTTT")
       await lido.handleOracleReport(
         ...Object.values({
           ...DEFAULT_LIDO_ORACLE_REPORT,
           timeElapsed: ONE_DAY,
           clValidators: 100,
           postCLBalance: ETH(3200),
+          clValidatorsAmounts,
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -710,7 +735,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
       await lido.submit(ZERO_ADDRESS, { from: stranger, value: ETH(3200), gasPrice: 1 })
       const amounts = []
       for (let i = 0; i < 100; ++i) {
-        amounts.push(i)
+        amounts.push(ETH(32))
       }
       await lido.deposit(101, 1, '0x', amounts, { from: depositor })
       await oracleReportSanityChecker.setOracleReportLimits(
@@ -721,6 +746,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
         },
         { from: voting, gasPrice: 1 }
       )
+      amounts.push(ETH(32))
       await assert.reverts(
         lido.handleOracleReport(
           ...Object.values({
@@ -728,6 +754,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
             timeElapsed: ONE_DAY,
             clValidators: 101,
             postCLBalance: ETH(3200),
+            clValidatorsAmounts: amounts
           }),
           { from: oracle, gasPrice: 1 }
         ),
@@ -764,6 +791,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           timeElapsed: ONE_YEAR,
           clValidators: 3,
           postCLBalance: ETH(97),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -784,6 +812,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           timeElapsed: ONE_YEAR,
           clValidators: 3,
           postCLBalance: ETH(100),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -816,6 +845,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           withdrawalVaultBalance: ETH(1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -849,6 +879,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           withdrawalVaultBalance: ETH(1.1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -883,6 +914,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           elRewardsVaultBalance: ETH(1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -918,6 +950,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(95.5),
           elRewardsVaultBalance: ETH(1.5),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -952,6 +985,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           elRewardsVaultBalance: ETH(1.1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -985,6 +1019,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(0.9),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1020,6 +1055,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(1.1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1059,6 +1095,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           sharesRequestedToBurn: sharesToBurn,
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1119,6 +1156,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           postCLBalance: ETH(96),
           elRewardsVaultBalance: ETH(0.5),
           sharesRequestedToBurn: sharesRequestedToBurn.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1197,6 +1235,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(0.4),
           sharesRequestedToBurn: sharesRequestedToBurn.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1276,6 +1315,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(4.9),
           sharesRequestedToBurn: sharesRequestedToBurn.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1365,6 +1405,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(1.1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1394,6 +1435,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           timeElapsed: ONE_DAY,
           clValidators: 3,
           postCLBalance: ETH(96.0027),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1415,6 +1457,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           timeElapsed: ONE_DAY,
           clValidators: 3,
           postCLBalance: ETH(96.0028),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1451,6 +1494,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           withdrawalVaultBalance: ETH(1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1484,6 +1528,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           withdrawalVaultBalance: ETH(1.1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1518,6 +1563,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           elRewardsVaultBalance: ETH(1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1553,6 +1599,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(95.5),
           elRewardsVaultBalance: ETH(1.5),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1587,6 +1634,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           elRewardsVaultBalance: ETH(1.1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1620,6 +1668,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(0.9),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1661,6 +1710,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96),
           sharesRequestedToBurn: sharesToBurn,
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1703,6 +1753,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           postCLBalance: ETH(96),
           elRewardsVaultBalance: ETH(0.5),
           sharesRequestedToBurn: sharesRequestedToBurn.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1782,6 +1833,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(0.4),
           sharesRequestedToBurn: sharesRequestedToBurn.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1861,6 +1913,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(4.9),
           sharesRequestedToBurn: sharesRequestedToBurn.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -1954,6 +2007,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(0.5),
           withdrawalVaultBalance: ETH(0.5),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2010,6 +2064,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(0.5),
           withdrawalVaultBalance: ETH(0.5),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2031,6 +2086,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
             withdrawalVaultBalance: ETH(0.5),
             withdrawalFinalizationBatches: [1],
             simulatedShareRate: tooLowSimulatedShareRate,
+            clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
           }),
           { from: oracle, gasPrice: 1 }
         ),
@@ -2051,6 +2107,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
             withdrawalVaultBalance: ETH(0.5),
             withdrawalFinalizationBatches: [1],
             simulatedShareRate: tooHighSimulatedShareRate,
+            clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
           }),
           { from: oracle, gasPrice: 1 }
         ),
@@ -2068,6 +2125,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           withdrawalVaultBalance: ETH(0.5),
           withdrawalFinalizationBatches: [1],
           simulatedShareRate,
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2121,6 +2179,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           elRewardsVaultBalance: ETH(0.25),
           withdrawalVaultBalance: ETH(0.5),
           sharesRequestedToBurn: sharesRequestedToBurn.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2158,6 +2217,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           sharesRequestedToBurn: sharesRequestedToBurn.toString(),
           withdrawalFinalizationBatches: [1],
           simulatedShareRate: simulatedShareRate.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2194,6 +2254,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           elRewardsVaultBalance: ETH(0),
           withdrawalVaultBalance: ETH(0),
           sharesRequestedToBurn: coverShares.add(nonCoverShares).toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2239,6 +2300,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           clValidators: 3,
           postCLBalance: ETH(96.1),
           elRewardsVaultBalance: ETH(1),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2271,6 +2333,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           elRewardsVaultBalance: ETH(1),
           withdrawalFinalizationBatches: [1],
           simulatedShareRate: simulatedShareRate.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2319,6 +2382,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           timeElapsed: ONE_DAY,
           clValidators: 3,
           postCLBalance: ETH(95), // CL rebase is negative (was 96 ETH before the report)
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2339,6 +2403,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           postCLBalance: ETH(95),
           withdrawalFinalizationBatches: [1],
           simulatedShareRate: simulatedShareRate.toString(),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle, gasPrice: 1 }
       )
@@ -2394,7 +2459,8 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
       )
 
       await lido.handleOracleReport(
-        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96) }),
+        ...Object.values({ ...DEFAULT_LIDO_ORACLE_REPORT, clValidators: 3, postCLBalance: ETH(96), 
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)] }),
         { from: oracle }
       )
       await checkStat({ depositedValidators: 3, beaconValidators: 3, beaconBalance: ETH(96) })
@@ -2412,6 +2478,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
           timeElapsed: ONE_YEAR,
           clValidators: 3,
           postCLBalance: ETH(96.96),
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32)]
         }),
         { from: oracle }
       )

@@ -172,12 +172,16 @@ async function checkSubmitDepositReportWithdrawal(protocol, state, user1, user2)
   const timeElapsed = +(nextReportEpochTimestamp - initialEpochTimestamp)
 
   const withdrawalFinalizationBatches = [1]
-
+  const clValidatorsAmounts = [];
+  for (i = 0; i < stat.depositedValidators; ++i) {
+    clValidatorsAmounts.push(ETH(32))
+  }
   // Performing dry-run to estimate simulated share rate
   const [postTotalPooledEther, postTotalShares, withdrawals, elRewards] = await lido.handleOracleReport.call(
     reportTimestamp,
     timeElapsed,
     stat.depositedValidators,
+    clValidatorsAmounts,
     clBalance,
     0 /* withdrawals vault balance */,
     elRewardsVaultBalance,

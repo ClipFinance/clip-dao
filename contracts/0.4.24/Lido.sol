@@ -16,6 +16,7 @@ import "../common/lib/Math256.sol";
 import "./StETHPermit.sol";
 
 import "./utils/Versioned.sol";
+import "hardhat/console.sol";
 
 interface IPostTokenRebaseReceiver {
     function handlePostTokenRebase(
@@ -522,6 +523,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         uint256 timeElapsed;
         // CL values
         uint256 clValidators;
+        uint256[] clValidatorsAmounts;
         uint256 postCLBalance;
         // EL values
         uint256 withdrawalVaultBalance;
@@ -576,6 +578,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         uint256 _timeElapsed,
         // CL values
         uint256 _clValidators,
+        uint256[] _clValidatorsAmounts,
         uint256 _clBalance,
         // EL values
         uint256 _withdrawalVaultBalance,
@@ -591,6 +594,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
                 _reportTimestamp,
                 _timeElapsed,
                 _clValidators,
+                _clValidatorsAmounts,
                 _clBalance,
                 _withdrawalVaultBalance,
                 _elRewardsVaultBalance,
@@ -812,10 +816,13 @@ contract Lido is Versioned, StETHPermit, AragonApp {
     function _processClStateUpdate(
         uint256 _reportTimestamp,
         uint256 _preClValidators,
+        uint256[] _preClValidatorsAmounts,
         uint256 _postClValidators,
         uint256 _postClBalance
     ) internal returns (uint256 preCLBalance) {
         uint256 depositedValidators = DEPOSITED_VALIDATORS_POSITION.getStorageUint256();
+        console.log("depositedValidators: ", depositedValidators);
+        console.log("_postClValidators: ", _postClValidators);
         require(_postClValidators <= depositedValidators, "REPORTED_MORE_DEPOSITED");
         require(_postClValidators >= _preClValidators, "REPORTED_LESS_VALIDATORS");
 
@@ -826,8 +833,14 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         preCLBalance = CL_BALANCE_POSITION.getStorageUint256();
         // Take into account the balance of the newly appeared validators
         if (appearedValidators > 0) {
-            preCLBalance = preCLBalance.add(CL_VALIDATORS_AMOUNT.getStorageUint256());
-            CL_VALIDATORS_AMOUNT.setStorageUint256(0);
+            uint256 addedAmount;//= CL_VALIDATORS_AMOUNT.getStorageUint256();
+            for (uint256 i; (i < appearedValidators) && (i < _preClValidatorsAmounts.length); ++i) {
+                addedAmount += _preClValidatorsAmounts[i];
+            }
+            preCLBalance = preCLBalance.add(addedAmount);
+            uint256 oldValidatorsAmount = CL_VALIDATORS_AMOUNT.getStorageUint256();
+            CL_VALIDATORS_AMOUNT.setStorageUint256(oldValidatorsAmount > addedAmount ? 
+                oldValidatorsAmount - addedAmount : 0);
         }
 
         // Save the current CL balance and validators to
@@ -1199,23 +1212,30 @@ contract Lido is Versioned, StETHPermit, AragonApp {
         OracleReportContext memory reportContext;
         // Step 1.
         // Take a snapshot of the current (pre-) state
+        console.log("step1");
         reportContext.preTotalPooledEther = _getTotalPooledEther();
         reportContext.preTotalShares = _getTotalShares();
+        
         reportContext.preCLValidators = CL_VALIDATORS_POSITION.getStorageUint256();
+        console.log("reportContext.preCLValidators: ", reportContext.preCLValidators);
+        console.log("_reportedData.clValidators: ", _reportedData.clValidators);
         reportContext.preCLBalance = _processClStateUpdate(
             _reportedData.reportTimestamp,
             reportContext.preCLValidators,
+            _reportedData.clValidatorsAmounts,
             _reportedData.clValidators,
             _reportedData.postCLBalance
         );
 
         // Step 2.
         // Pass the report data to sanity checker (reverts if malformed)
+        console.log("step2");
         _checkAccountingOracleReport(contracts, _reportedData, reportContext);
 
         // Step 3.
         // Pre-calculate the ether to lock for withdrawal queue and shares to be burnt
         // due to withdrawal requests to finalize
+        console.log("step3");
         if (_reportedData.withdrawalFinalizationBatches.length != 0) {
             (
                 reportContext.etherToLockOnWithdrawalQueue,
@@ -1232,7 +1252,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
 
         // Step 4.
         // Pass the accounting values to sanity checker to smoothen positive token rebase
-
+        console.log("step4");
         uint256 withdrawals;
         uint256 elRewards;
         (
@@ -1251,6 +1271,7 @@ contract Lido is Versioned, StETHPermit, AragonApp {
 
         // Step 5.
         // Invoke finalization of the withdrawal requests (send ether to withdrawal queue, assign shares to be burnt)
+        console.log("step5");
         _collectRewardsAndProcessWithdrawals(
             contracts,
             withdrawals,
@@ -1259,6 +1280,12 @@ contract Lido is Versioned, StETHPermit, AragonApp {
             _reportedData.simulatedShareRate,
             reportContext.etherToLockOnWithdrawalQueue
         );
+      /*  console.log("_reportedData.reportTimestamp: ", _reportedData.reportTimestamp);
+        console.log("reportContext.preCLBalance: ", reportContext.preCLBalance);
+        console.log("_reportedData.postCLBalance: ", _reportedData.postCLBalance);
+        console.log("withdrawals: ", withdrawals);
+        console.log("elRewards: ", elRewards);
+        console.log("_getBufferedEther: ", _getBufferedEther());*/
         emit ETHDistributed(
             _reportedData.reportTimestamp,
             reportContext.preCLBalance,
@@ -1353,7 +1380,13 @@ contract Lido is Versioned, StETHPermit, AragonApp {
                 _reportContext.sharesMintedAsFees
             );
         }
-
+        console.log("_reportedData.reportTimestamp: ", _reportedData.reportTimestamp);
+        console.log("_reportedData.timeElapsed: ", _reportedData.timeElapsed);
+        console.log("_reportContext.preTotalShares: ", _reportContext.preTotalShares);
+        console.log("_reportContext.preTotalPooledEther: ", _reportContext.preTotalShares);
+        console.log("postTotalShares: ", postTotalShares);
+        console.log("postTotalPooledEther: ", postTotalPooledEther);
+        console.log("_reportContext.sharesMintedAsFees: ", _reportContext.sharesMintedAsFees);
         emit TokenRebased(
             _reportedData.reportTimestamp,
             _reportedData.timeElapsed,

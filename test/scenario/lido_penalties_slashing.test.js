@@ -82,9 +82,9 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
     }
   )
 
-  const pushReport = async (clValidators, clBalance) => {
+  const pushReport = async (clValidators, clValidatorsAmounts, clBalance) => {
     const elRewards = await web3.eth.getBalance(elRewardsVault.address)
-    await pushOracleReport(consensus, oracle, clValidators, clBalance, elRewards)
+    await pushOracleReport(consensus, oracle, clValidators, clValidatorsAmounts, clBalance, elRewards)
     await ethers.provider.send('evm_increaseTime', [SECONDS_PER_FRAME + 1000])
     await ethers.provider.send('evm_mine')
   }
@@ -286,7 +286,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
     assert.equals(await pool.getTotalPooledEther(), ETH(33), '32 + 1 ETH initial')
     
     // Reporting 1 ETH balance loss (9 => 8)
-    await pushReport(1, ETH(8))
+    await pushReport(1, [ETH(32)], ETH(8))
 
     assert.equals(
       await token.getTotalShares(),
@@ -324,7 +324,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
     )
 
     // Reporting 2 ETH balance loss (8 => 6)
-    await pushReport(1, ETH(6))
+    await pushReport(1, [ETH(32)], ETH(6))
 
     assert.equals(
       await token.getTotalShares(),
@@ -469,7 +469,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
     assert.equals(await token.getTotalShares(), expectedTotalShares, 'Old total shares')
 
     // Reporting 1 ETH balance loss ( total pooled 81 => 80)
-    await pushReport(1, ETH(9 - 3 - 1))
+    await pushReport(1, [ETH(32)], ETH(9 - 3 - 1))
 
     assert.equals(
       await token.getTotalShares(),
@@ -499,7 +499,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
   })
 
   it(`the oracle can't report less validators than previously`, async () => {
-    await assert.reverts(pushReport(0, ETH(31)))
+    await assert.reverts(pushReport(0, [], ETH(31)))
   })
 
   it(`user deposits another 32 ETH to the pool`, async () => {
@@ -620,7 +620,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
 
     const totalSupplyBefore = await token.getTotalPooledEther()
 
-    await pushReport(2, ETH(90))
+    await pushReport(2, [ETH(32), ETH(32)], ETH(90))
 
     const totalSupplyAfter = await token.getTotalPooledEther()
     const beaconBalanceIncrement = totalSupplyAfter - totalSupplyBefore
@@ -656,7 +656,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
   it(`oracle reports profit, previously stopped staking module gets the fee`, async () => {
     const stakingModuleTokenSharesBefore = await token.sharesOf(nodeOperatorsRegistry.address)
 
-    await pushReport(2, ETH(100))
+    await pushReport(2, [ETH(32), ETH(32)], ETH(100))
 
     const stakingModuleTokenSharesAfter = await token.sharesOf(nodeOperatorsRegistry.address)
 
@@ -670,7 +670,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
     const nodeOperator1TokenSharesBefore = await token.sharesOf(nodeOperator1.address)
     const nodeOperator2TokenSharesBefore = await token.sharesOf(nodeOperator2.address)
 
-    await pushReport(2, ETH(96))
+    await pushReport(2, [ETH(32), ETH(32)], ETH(96))
 
     // kicks rewards distribution
     const { operatorIds, keysCounts } = prepIdsCountsPayload(0, 1)

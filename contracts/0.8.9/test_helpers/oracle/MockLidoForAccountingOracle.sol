@@ -23,6 +23,7 @@ contract MockLidoForAccountingOracle is ILido {
         uint256 currentReportTimestamp;
         uint256 secondsElapsedSinceLastReport;
         uint256 numValidators;
+        uint256[] clValidatorsAmounts;
         uint256 clBalance;
         uint256 withdrawalVaultBalance;
         uint256 elRewardsVaultBalance;
@@ -54,6 +55,7 @@ contract MockLidoForAccountingOracle is ILido {
         uint256 currentReportTimestamp,
         uint256 secondsElapsedSinceLastReport,
         uint256 numValidators,
+        uint256[] calldata clValidatorsAmounts,
         uint256 clBalance,
         uint256 withdrawalVaultBalance,
         uint256 elRewardsVaultBalance,
@@ -66,6 +68,7 @@ contract MockLidoForAccountingOracle is ILido {
         _handleOracleReportLastCall
             .secondsElapsedSinceLastReport = secondsElapsedSinceLastReport;
         _handleOracleReportLastCall.numValidators = numValidators;
+        _handleOracleReportLastCall.clValidatorsAmounts = clValidatorsAmounts;
         _handleOracleReportLastCall.clBalance = clBalance;
         _handleOracleReportLastCall
             .withdrawalVaultBalance = withdrawalVaultBalance;

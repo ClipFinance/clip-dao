@@ -32,6 +32,7 @@ const getDefaultExtraData = () => ({
 const getDefaultReportFields = (overrides) => ({
   consensusVersion: CONSENSUS_VERSION,
   numValidators: 10,
+  clValidatorsAmounts: [],
   clBalanceGwei: e9(320),
   stakingModuleIdsWithNewlyExitedValidators: [1],
   numExitedValidatorsByStakingModule: [3],

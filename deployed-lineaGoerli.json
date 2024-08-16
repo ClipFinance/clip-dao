@@ -16,10 +16,10 @@
   },
   "daoInitialSettings": {
     "voting": {
-      "minSupportRequired": "500000000000000000",
-      "minAcceptanceQuorum": "50000000000000000",
-      "voteDuration": 900,
-      "objectionPhaseDuration": 300
+      "minSupportRequired": "50000000000000000",
+      "minAcceptanceQuorum": "5000000000000000",
+      "voteDuration": 90,
+      "objectionPhaseDuration": 30
     },
     "fee": {
       "totalPercent": 10,
@@ -27,16 +27,16 @@
       "nodeOperatorsPercent": 50
     },
     "token": {
-      "name": "TEST Lido DAO Token",
-      "symbol": "TLDO"
+      "name": "TEST CLIP DAO Token",
+      "symbol": "TCDO"
     }
   },
   "vestingParams": {
     "unvestedTokensAmount": "0",
     "holders": {
-      "0xCD1f9954330AF39a74Fd6e7B25781B4c24ee373f": "820000000000000000000000",
-      "0xaa6bfBCD634EE744CB8FE522b29ADD23124593D3": "60000000000000000000000",
-      "0xBA59A84C6440E8cccfdb5448877E26F1A431Fc8B": "60000000000000000000000",
+      "0x870eD7F397381b6a4AF89D9470a8418d73cb91f7": "820000000000000000000000",
+      "0x3315c40A28A76213C70B35C2DE923EF92a718833": "60000000000000000000000",
+      "0xFd93281B892d01c994524Ed803bdbE788E8b9981": "60000000000000000000000",
       "lido-aragon-agent-placeholder": "60000000000000000000000"
     },
     "start": 0,
@@ -118,8 +118,8 @@
   },
   "withdrawalQueueERC721": {
     "deployParameters": {
-      "name": "Lido: stETH Withdrawal NFT",
-      "symbol": "unstETH",
+      "name": "CLIP: stCLiP Withdrawal NFT",
+      "symbol": "unstCLIP",
       "baseUri": null
     }
   }

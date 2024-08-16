@@ -110,9 +110,9 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
     await snapshot.rollback()
   })
 
-  const pushReport = async (clValidators, clBalance) => {
+  const pushReport = async (clValidators, clValidatorsAmounts, clBalance) => {
     const elRewardsVaultBalance = await web3.eth.getBalance(elRewardsVault.address)
-    await pushOracleReport(consensus, oracle, clValidators, clBalance, elRewardsVaultBalance)
+    await pushOracleReport(consensus, oracle, clValidators, clValidatorsAmounts, clBalance, elRewardsVaultBalance)
     await advanceChainTime(SECONDS_PER_FRAME + 1000)
   }
 
@@ -227,10 +227,10 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
       const user2Rewards = user2Deposit / TOTAL_BASIS_POINTS
 
       await setupNodeOperatorsForELRewardsVaultTests(user2, ETH(user2Deposit))
-      await pushReport(1, ETH(totalDeposit))
+      await pushReport(1, [ETH(32)], ETH(totalDeposit))
       await setBalance(elRewardsVault.address, ETH(totalElRewards))
 
-      await pushReport(1, ETH(totalDeposit + clRewards))
+      await pushReport(1, [ETH(32)], ETH(totalDeposit + clRewards))
 
       assert.equals(await app.getTotalPooledEther(), ETH(initialDeposit + user2Deposit + totalElRewards + clRewards))
       assert.equals(await app.totalSupply(), StETH(initialDeposit + user2Deposit + totalElRewards + clRewards))
@@ -247,10 +247,10 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
       const user2Rewards = user2Deposit / TOTAL_BASIS_POINTS
 
       await setupNodeOperatorsForELRewardsVaultTests(user2, ETH(user2Deposit))
-      await pushReport(1, ETH(totalDeposit))
+      await pushReport(1, [ETH(32)], ETH(totalDeposit))
 
       await setBalance(elRewardsVault.address, ETH(totalElRewards))
-      await pushReport(1, ETH(totalDeposit + clRewards))
+      await pushReport(1, [ETH(32)], ETH(totalDeposit + clRewards))
 
       assert.equals(await app.getTotalPooledEther(), ETH(initialDeposit + user2Deposit + totalElRewards + clRewards))
       assert.equals(await app.balanceOf(user2), StETH(user2Deposit + user2Rewards + (clRewards * 31) / 32))
@@ -265,10 +265,10 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
       const totalElRewards = totalDeposit / TOTAL_BASIS_POINTS
 
       await setupNodeOperatorsForELRewardsVaultTests(user2, ETH(user2Deposit))
-      await pushReport(1, ETH(totalDeposit))
+      await pushReport(1, [ETH(32)], ETH(totalDeposit))
 
       await setBalance(elRewardsVault.address, ETH(totalElRewards))
-      await pushReport(1, ETH(totalDeposit + clRewards))
+      await pushReport(1, [ETH(32)], ETH(totalDeposit + clRewards))
 
       assert.equals(await app.getTotalPooledEther(), ETH(totalDeposit + totalElRewards + clRewards))
       assert.equals(await app.getTotalELRewardsCollected(), ETH(totalElRewards))
@@ -322,10 +322,10 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
         const beaconRewards = 0
 
         await setupNodeOperatorsForELRewardsVaultTests(user2, ETH(depositAmount))
-        await pushReport(1, ETH(depositAmount))
+        await pushReport(1, [ETH(32)], ETH(depositAmount))
 
         await setBalance(elRewardsVault.address, ETH(elRewards))
-        await pushReport(1, ETH(depositAmount + beaconRewards))
+        await pushReport(1, [ETH(32)], ETH(depositAmount + beaconRewards))
 
         assert.equals(await app.getTotalPooledEther(), ETH(depositAmount + elRewards + beaconRewards))
         assert.equals(await app.getBufferedEther(), ETH(elRewards))
@@ -339,10 +339,10 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
         const beaconRewards = -2
 
         await setupNodeOperatorsForELRewardsVaultTests(user2, ETH(depositAmount))
-        await pushReport(1, ETH(depositAmount))
+        await pushReport(1, [ETH(32)], ETH(depositAmount))
 
         await setBalance(elRewardsVault.address, ETH(elRewards))
-        await pushReport(1, ETH(depositAmount + beaconRewards))
+        await pushReport(1, [ETH(32)], ETH(depositAmount + beaconRewards))
 
         assert.equals(await app.getTotalPooledEther(), ETH(depositAmount + elRewards + beaconRewards))
         assert.equals(await app.getBufferedEther(), ETH(elRewards))
@@ -356,10 +356,10 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
         const beaconRewards = 3
 
         await setupNodeOperatorsForELRewardsVaultTests(user2, ETH(depositAmount))
-        await pushReport(1, ETH(depositAmount))
+        await pushReport(1, [ETH(32)], ETH(depositAmount))
 
         await setBalance(elRewardsVault.address, ETH(elRewards))
-        await pushReport(1, ETH(depositAmount + beaconRewards))
+        await pushReport(1, [ETH(32)], ETH(depositAmount + beaconRewards))
 
         const { totalFee } = await app.getFee()
         const shareOfRewardsForStakers = (TOTAL_BASIS_POINTS - totalFee) / TOTAL_BASIS_POINTS
@@ -1031,7 +1031,7 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
       'APP_AUTH_FAILED'
     )
 
-    await pushReport(1, ETH(30))
+    await pushReport(1, [ETH(32), ETH(32)], ETH(30))
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(30) })
 
     await assert.reverts(
@@ -1039,10 +1039,10 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
       'APP_AUTH_FAILED'
     )
 
-    await pushReport(1, ETH(100)) // stale data
+    await pushReport(1, [ETH(32)], ETH(100)) // stale data
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(100) })
 
-    await pushReport(1, ETH(33))
+    await pushReport(1, [ETH(32)], ETH(33))
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(33) })
   })
 
@@ -1077,7 +1077,7 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
     assert.equals(await app.getBufferedEther(), ETH(2))
 
     // down
-    await pushReport(1, ETH(15))
+    await pushReport(1, [ETH(32)], ETH(15))
 
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(15) })
     assert.equals(await depositContract.totalCalls(), 1)
@@ -1098,8 +1098,8 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
     assert.equals(await app.totalSupply(), tokens(19))
 
     // up
-    await assert.reverts(pushReport(2, ETH(48)), 'REPORTED_MORE_DEPOSITED')
-    await pushReport(1, ETH(48))
+    await assert.reverts(pushReport(2, [ETH(32)], ETH(48)), 'REPORTED_MORE_DEPOSITED')
+    await pushReport(1, [ETH(32)], ETH(48))
 
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(48) })
     assert.equals(await depositContract.totalCalls(), 1)
@@ -1199,7 +1199,7 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
     await app.methods['deposit(uint256,uint256,bytes,uint256[])'](MAX_DEPOSITS, CURATED_MODULE_ID, CALLDATA, 
       [ETH(32)], { from: depositor })
 
-    await pushReport(1, ETH(36))
+    await pushReport(1, [ETH(32)], ETH(36))
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(36) })
     assert.equals(await app.totalSupply(), ETH(38)) // remote + buffered
     await checkRewards({ treasury: 0, operator: 0 })
@@ -1208,7 +1208,7 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
     await stakingRouter.updateStakingModule(module1.id, module1.targetShare, 500, 500, { from: voting })
 
     //
-    await pushReport(1, ETH(38))
+    await pushReport(1, [ETH(32)], ETH(38))
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(38) })
     assert.equals(await app.totalSupply(), ETH(40)) // remote + buffered
     await checkRewards({ treasury: 100, operator: 99 })
@@ -1242,7 +1242,7 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
     await app.methods['deposit(uint256,uint256,bytes,uint256[])'](MAX_DEPOSITS, CURATED_MODULE_ID, CALLDATA, 
       [ETH(32)], { from: depositor })
 
-    await pushReport(1, ETH(36))
+    await pushReport(1, [ETH(32)], ETH(36))
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(36) })
     assert.equals(await app.totalSupply(), ETH(38)) // remote + buffered
     await checkRewards({ treasury: 199, operator: 199 })
@@ -1273,7 +1273,7 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
     await app.methods['deposit(uint256,uint256,bytes,uint256[])'](MAX_DEPOSITS, CURATED_MODULE_ID, CALLDATA, 
       [ETH(32)], { from: depositor })
     // some slashing occurred
-    await pushReport(1, ETH(30))
+    await pushReport(1, [ETH(32)], ETH(30))
 
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(30) })
     // ToDo check buffer=2
@@ -1281,12 +1281,12 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
     await checkRewards({ treasury: 0, operator: 0 })
 
     // rewarded 200 Ether (was 30, became 230)
-    await pushReport(1, ETH(130))
+    await pushReport(1, [ETH(32)], ETH(130))
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(130) })
     // Todo check reward effects
     // await checkRewards({ treasury: 0, operator: 0 })
 
-    await pushReport(1, ETH(2230))
+    await pushReport(1, [ETH(32)], ETH(2230))
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(2230) })
     assert.equals(await app.totalSupply(), tokens(2232))
     // Todo check reward effects
@@ -1312,7 +1312,7 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
       [ETH(32)], { from: depositor })
     assert.equals(await app.totalSupply(), StETH(64))
 
-    await pushReport(1, ETH(36))
+    await pushReport(1, [ETH(32)], ETH(36))
     await checkStat({ depositedValidators: 1, beaconValidators: 1, beaconBalance: ETH(36) })
     assert.equals(await app.totalSupply(), StETH(68))
     await checkRewards({ treasury: 200, operator: 199 })

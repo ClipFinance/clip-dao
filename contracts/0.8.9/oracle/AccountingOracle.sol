@@ -17,6 +17,7 @@ interface ILido {
         uint256 _timeElapsedSeconds,
         // CL values
         uint256 _clValidators,
+        uint256[] calldata _clValidatorsAmounts,
         uint256 _clBalance,
         // EL values
         uint256 _withdrawalVaultBalance,
@@ -206,6 +207,8 @@ contract AccountingOracle is BaseOracle {
         /// @dev The number of validators on consensus layer that were ever deposited
         /// via Lido as observed at the reference slot.
         uint256 numValidators;
+
+        uint256[] clValidatorsAmounts;
 
         /// @dev Cumulative balance of all Lido validators on the consensus layer
         /// as observed at the reference slot.
@@ -563,6 +566,21 @@ contract AccountingOracle is BaseOracle {
         }
     }
 
+    function _handleOracleReport(uint256 _reportTimestamp, uint256 _timeElapsed, ReportData calldata data) private {
+        ILido(LIDO).handleOracleReport(
+            _reportTimestamp,
+            _timeElapsed,
+            data.numValidators,
+            data.clValidatorsAmounts,
+            data.clBalanceGwei * 1e9,
+            data.withdrawalVaultBalance,
+            data.elRewardsVaultBalance,
+            data.sharesRequestedToBurn,
+            data.withdrawalFinalizationBatches,
+            data.simulatedShareRate
+        );
+    }
+
     function _handleConsensusReportData(ReportData calldata data, uint256 prevRefSlot) internal {
         if (data.extraDataFormat == EXTRA_DATA_FORMAT_EMPTY) {
             if (data.extraDataHash != bytes32(0)) {
@@ -610,17 +628,10 @@ contract AccountingOracle is BaseOracle {
             GENESIS_TIME + data.refSlot * SECONDS_PER_SLOT
         );
 
-        ILido(LIDO).handleOracleReport(
+        _handleOracleReport(
             GENESIS_TIME + data.refSlot * SECONDS_PER_SLOT,
             slotsElapsed * SECONDS_PER_SLOT,
-            data.numValidators,
-            data.clBalanceGwei * 1e9,
-            data.withdrawalVaultBalance,
-            data.elRewardsVaultBalance,
-            data.sharesRequestedToBurn,
-            data.withdrawalFinalizationBatches,
-            data.simulatedShareRate
-        );
+            data);
 
         _storageExtraDataProcessingState().value = ExtraDataProcessingState({
             refSlot: data.refSlot.toUint64(),

@@ -72,8 +72,8 @@ contract('Lido: rewards distribution math', (addresses) => {
     })),
   }
 
-  async function reportBeacon(validatorsCount, balance) {
-    const receipts = await pushOracleReport(consensus, oracle, validatorsCount, balance, 0)
+  async function reportBeacon(validatorsCount, balance, clValidatorsAmounts) {
+    const receipts = await pushOracleReport(consensus, oracle, validatorsCount, clValidatorsAmounts, balance, 0)
     await ethers.provider.send('evm_increaseTime', [SECONDS_PER_FRAME + 1000])
     await ethers.provider.send('evm_mine')
 
@@ -248,7 +248,7 @@ contract('Lido: rewards distribution math', (addresses) => {
 
     const nodeOperator1SharesBefore = await pool.sharesOf(nodeOperator1.address)
 
-    const { submitDataTx, submitExtraDataTx } = await reportBeacon(1, reportingValue)
+    const { submitDataTx, submitExtraDataTx } = await reportBeacon(1, reportingValue, [ETH(32)])
 
     const sharesMintedAsFees = calcSharesMintedAsFees(
       profitAmount,
@@ -484,7 +484,7 @@ contract('Lido: rewards distribution math', (addresses) => {
 
   it(`delta shares are zero on no profit reported after the deposit`, async () => {
     const [, deltas] = await getSharesTokenDeltas(
-      () => reportBeacon(2, ETH(32 + 1 + 32)),
+      () => reportBeacon(2, ETH(32 + 1 + 32), [ETH(32), ETH(32)]),
       treasuryAddr,
       nodeOperator1.address,
       nodeOperator2.address,
@@ -509,7 +509,7 @@ contract('Lido: rewards distribution math', (addresses) => {
     const nodeOperator1SharesBefore = await pool.sharesOf(nodeOperator1.address)
     const nodeOperator2SharesBefore = await pool.sharesOf(nodeOperator2.address)
 
-    const { submitDataTx, submitExtraDataTx } = await reportBeacon(2, reportingValue)
+    const { submitDataTx, submitExtraDataTx } = await reportBeacon(2, reportingValue, [ETH(32), ETH(32)])
 
     const sharesMintedAsFees = calcSharesMintedAsFees(
       profitAmount,
@@ -753,7 +753,7 @@ contract('Lido: rewards distribution math', (addresses) => {
     const nodeOperator2SharesBefore = await token.sharesOf(nodeOperator2.address)
     const nodeOperator3SharesBefore = await token.sharesOf(nodeOperator3.address)
 
-    await reportBeacon(3, newBeaconBalance)
+    await reportBeacon(3, newBeaconBalance, [ETH(32)])
 
     assert.equals(await token.totalSupply(), totalPooledEtherBefore.add(toBN(rewardsAmount)), 'token total supply')
 
@@ -810,7 +810,7 @@ contract('Lido: rewards distribution math', (addresses) => {
     const nodeOperator2SharesBefore = await token.sharesOf(nodeOperator2.address)
     const nodeOperator3SharesBefore = await token.sharesOf(nodeOperator3.address)
 
-    await reportBeacon(3, newBeaconBalance)
+    await reportBeacon(3, newBeaconBalance, [ETH(32)])
 
     assert.equals(await token.totalSupply(), totalPooledEtherBefore.add(toBN(rewardsAmount)), 'token total supply')
 
@@ -852,7 +852,7 @@ contract('Lido: rewards distribution math', (addresses) => {
     const nodeOperator2SharesBefore = await token.sharesOf(nodeOperator2.address)
     const nodeOperator3SharesBefore = await token.sharesOf(nodeOperator3.address)
 
-    await reportBeacon(3, newBeaconBalance)
+    await reportBeacon(3, newBeaconBalance, [ETH(32)])
 
     assert.equals(await token.totalSupply(), totalPooledEtherBefore.add(toBN(rewardsAmount)), 'token total supply')
 

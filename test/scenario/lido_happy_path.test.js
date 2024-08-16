@@ -181,7 +181,6 @@ contract('Lido: happy path', (addresses) => {
       validAttestMessage.sign(guardians.privateKeys[guardians.addresses[0]]),
       validAttestMessage.sign(guardians.privateKeys[guardians.addresses[1]]),
     ]
-    console.log("cecheck");
     await assert.reverts(
       depositSecurityModule.depositBufferedEther(
         block.number,

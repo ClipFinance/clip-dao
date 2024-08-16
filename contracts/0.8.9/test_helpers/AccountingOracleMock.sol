@@ -30,6 +30,7 @@ contract AccountingOracleMock {
             data.refSlot * SECONDS_PER_SLOT,
             slotsElapsed * SECONDS_PER_SLOT,
             data.numValidators,
+            data.clValidatorsAmounts,
             data.clBalanceGwei * 1e9,
             data.withdrawalVaultBalance,
             data.elRewardsVaultBalance,
