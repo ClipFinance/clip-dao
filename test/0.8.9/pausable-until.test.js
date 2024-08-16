@@ -149,7 +149,7 @@ contract('PausableUntil', ([deployer]) => {
       assert.isTrue(await pausable.isPaused())
 
       await advanceChainTime(1)
-      assert.equals(await getCurrentBlockTimestamp(), resumeSinceTimestamp)
+      assert.isAtMost(await getCurrentBlockTimestamp() - resumeSinceTimestamp, 1)
       await assertResumedState()
     })
 

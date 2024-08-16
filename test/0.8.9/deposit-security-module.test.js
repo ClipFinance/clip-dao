@@ -2,6 +2,7 @@ const { artifacts, contract, ethers, network, web3 } = require('hardhat')
 const { assert } = require('../helpers/assert')
 const { DSMAttestMessage, DSMPauseMessage } = require('../helpers/signatures')
 const { ZERO_ADDRESS } = require('../helpers/constants')
+const { ETH } = require('../helpers/utils')
 
 // generateGuardianSignatures
 
@@ -117,6 +118,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [],
+            [ETH(32)],
             {
               from: stranger,
             }
@@ -146,7 +148,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
           DEPOSIT_NONCE,
           DEPOSIT_CALLDATA,
           [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
-          [],
+          [ETH(32)],
           { from: stranger }
         )
         assert.emits(
@@ -173,7 +175,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN2])],
-            []
+            [ETH(32)]
           ),
           'InvalidSignature()'
         )
@@ -188,7 +190,8 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             STAKING_MODULE,
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
-            []
+            [],
+            [ETH(32)]
           ),
           'DepositNoQuorum()'
         )
@@ -209,7 +212,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
-            []
+            [ETH(32)]
           ),
           'DepositRootChanged()'
         )
@@ -229,7 +232,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
-            []
+            [ETH(32)]
           ),
           'DepositNonceChanged()'
         )
@@ -254,7 +257,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
-            []
+            [ETH(32)]
           ),
           'DepositTooFrequent()'
         )
@@ -276,7 +279,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
-            []
+            [ETH(32)]
           ),
           'DepositInactiveModule()'
         )
@@ -295,7 +298,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
-            []
+            [ETH(32)]
           ),
           'DepositUnexpectedBlockHash()'
         )
@@ -312,7 +315,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [validAttestMessage.sign(GUARDIAN_PRIVATE_KEYS[GUARDIAN1])],
-            []
+            [ETH(32)]
           ),
           'DepositUnexpectedBlockHash()'
         )
@@ -469,7 +472,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             [],
-            [],
+            [ETH(32)],
             { from: stranger }
           ),
           'DepositNoQuorum()'
@@ -490,7 +493,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             signatures,
-            [],
+            [ETH(32)],
             { from: stranger }
           ),
           'SignaturesNotSorted()'
@@ -512,7 +515,7 @@ contract('DepositSecurityModule', ([owner, stranger, guardian]) => {
             DEPOSIT_NONCE,
             DEPOSIT_CALLDATA,
             signatures,
-            [],
+            [ETH(32)],
             { from: stranger }
           ),
           'SignaturesNotSorted()'

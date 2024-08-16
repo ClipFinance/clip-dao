@@ -21,7 +21,8 @@ contract LidoMockForDepositSecurityModule {
     function deposit(
         uint256 maxDepositsCount,
         uint256 stakingModuleId,
-        bytes calldata depositCalldata
+        bytes calldata depositCalldata,
+        uint256[] calldata amounts
     ) external returns(uint256 keysCount) {
         emit StakingModuleDeposited(maxDepositsCount, uint24(stakingModuleId), depositCalldata);
         return maxDepositsCount;
