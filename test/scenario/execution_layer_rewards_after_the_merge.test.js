@@ -29,10 +29,11 @@ const ORACLE_REPORT_LIMITS_BOILERPLATE = {
   maxPositiveTokenRebase: 1000000000,
 }
 
-const makeAccountingReport = ({ refSlot, numValidators, clBalanceGwei, elRewardsVaultBalance }) => ({
+const makeAccountingReport = ({ refSlot, numValidators, clValidatorsAmounts, clBalanceGwei, elRewardsVaultBalance }) => ({
   refSlot,
   consensusVersion: 1,
   numValidators,
+  clValidatorsAmounts,
   clBalanceGwei,
   stakingModuleIdsWithNewlyExitedValidators: [],
   numExitedValidatorsByStakingModule: [],
@@ -428,6 +429,7 @@ contract('Lido: merge acceptance', (addresses) => {
       makeAccountingReport({
         refSlot: +refSlot,
         numValidators: 2,
+        clValidatorsAmounts: [ETH(32), ETH(32)],
         clBalanceGwei: gwei(64.35),
         elRewardsVaultBalance: await web3.eth.getBalance(elRewardsVault.address),
       })
@@ -541,6 +543,7 @@ contract('Lido: merge acceptance', (addresses) => {
       makeAccountingReport({
         refSlot: +refSlot,
         numValidators: 2,
+        clValidatorsAmounts: [ETH(32), ETH(32)],
         clBalanceGwei: gwei(64.35),
         elRewardsVaultBalance: await web3.eth.getBalance(elRewardsVault.address),
       })
@@ -637,6 +640,7 @@ contract('Lido: merge acceptance', (addresses) => {
       makeAccountingReport({
         refSlot: +refSlot,
         numValidators: 2,
+        clValidatorsAmounts: [ETH(32), ETH(32)],
         clBalanceGwei: gwei(62.35),
         elRewardsVaultBalance: await web3.eth.getBalance(elRewardsVault.address),
       })
@@ -725,6 +729,7 @@ contract('Lido: merge acceptance', (addresses) => {
       makeAccountingReport({
         refSlot: +refSlot,
         numValidators: 2,
+        clValidatorsAmounts: [ETH(32), ETH(32)],
         clBalanceGwei: gwei(59.35),
         elRewardsVaultBalance: await web3.eth.getBalance(elRewardsVault.address),
       })
@@ -795,6 +800,7 @@ contract('Lido: merge acceptance', (addresses) => {
       makeAccountingReport({
         refSlot: +refSlot,
         numValidators: 2,
+        clValidatorsAmounts: [ETH(32), ETH(32)],
         clBalanceGwei: gwei(51.35),
         elRewardsVaultBalance: await web3.eth.getBalance(elRewardsVault.address),
       })
@@ -886,6 +892,7 @@ contract('Lido: merge acceptance', (addresses) => {
       makeAccountingReport({
         refSlot: +refSlot,
         numValidators: 2,
+        clValidatorsAmounts: [ETH(32), ETH(32)],
         clBalanceGwei: gwei(51.49),
         elRewardsVaultBalance: await web3.eth.getBalance(elRewardsVault.address),
       })
@@ -994,6 +1001,7 @@ contract('Lido: merge acceptance', (addresses) => {
         makeAccountingReport({
           refSlot,
           numValidators: 2,
+          clValidatorsAmounts: [ETH(32), ETH(32)],
           clBalanceGwei: ethToGwei(lastBeaconBalance.add(beaconBalanceInc)),
           elRewardsVaultBalance: currentELBalance,
         })

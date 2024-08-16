@@ -29,6 +29,7 @@ const {
 const getReportFields = (override = {}) => ({
   consensusVersion: CONSENSUS_VERSION,
   numValidators: 10,
+  clValidatorsAmounts: [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)],
   clBalanceGwei: e9(320),
   stakingModuleIdsWithNewlyExitedValidators: [1],
   numExitedValidatorsByStakingModule: [3],
