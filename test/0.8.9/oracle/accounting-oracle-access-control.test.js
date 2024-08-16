@@ -49,6 +49,7 @@ contract('AccountingOracle', ([admin, account1, account2, member1, member2, stra
       consensusVersion: CONSENSUS_VERSION,
       refSlot: +refSlot,
       numValidators: 10,
+      clValidatorsAmounts: [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)],
       clBalanceGwei: e9(320),
       stakingModuleIdsWithNewlyExitedValidators: [1],
       numExitedValidatorsByStakingModule: [3],

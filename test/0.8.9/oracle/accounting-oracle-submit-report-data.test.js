@@ -1,6 +1,6 @@
 const { contract, web3, ethers } = require('hardhat')
 const { assert } = require('../../helpers/assert')
-const { e9, e18, e27, toNum } = require('../../helpers/utils')
+const { e9, e18, e27, toNum, ETH } = require('../../helpers/utils')
 const { EvmSnapshot } = require('../../helpers/blockchain')
 
 const AccountingOracleAbi = require('../../../lib/abi/AccountingOracle.json')
@@ -44,6 +44,7 @@ contract('AccountingOracle', ([admin, member1, member2]) => {
   const getReportFields = (override = {}) => ({
     consensusVersion: CONSENSUS_VERSION,
     numValidators: 10,
+    clValidatorsAmounts: [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)],
     clBalanceGwei: e9(320),
     stakingModuleIdsWithNewlyExitedValidators: [1],
     numExitedValidatorsByStakingModule: [3],

@@ -79,7 +79,6 @@ async function triggerConsensusOnHash(hash, consensus) {
 
 async function reportOracle(consensus, oracle, reportFields) {
   const { refSlot } = await consensus.getCurrentFrame()
-  console.log("reportOracle: ", reportFields)
   const report = await prepareOracleReport({ ...reportFields, refSlot })
 
   // non-empty extra data is not supported here yet

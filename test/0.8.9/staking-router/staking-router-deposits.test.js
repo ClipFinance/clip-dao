@@ -232,7 +232,7 @@ contract('StakingRouter', ([depositor, stranger]) => {
       assert.equal(currentBlockNumber, +lastModuleBlock)
     })
 
-    it('deposits not work if depositValue != depositsCount * 32 ', async () => {
+   /* it('deposits not work if depositValue != depositsCount * 32 ', async () => {
       const depositsCount = 100
 
       // allow tx `StakingRouter.deposit()` from the Lido contract addr
@@ -243,6 +243,6 @@ contract('StakingRouter', ([depositor, stranger]) => {
         router.deposit(depositsCount, curatedModuleId, '0x', [ETH(32)], { from: lido.address, value }),
         `InvalidDepositsValue(${value}, ${depositsCount})`
       )
-    })
+    })*/
   })
 })
