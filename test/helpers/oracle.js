@@ -98,7 +98,6 @@ async function reportOracle(consensus, oracle, reportFields) {
 
 // FIXME: kept for compat, remove after refactoring tests
 function pushOracleReport(consensus, oracle, numValidators, clValidatorsAmounts, clBalance, elRewardsVaultBalance) {
-  console.log("pushOracleReport: ", clValidatorsAmounts)
   return reportOracle(consensus, oracle, { numValidators, clBalance, clValidatorsAmounts, elRewardsVaultBalance })
 }
 

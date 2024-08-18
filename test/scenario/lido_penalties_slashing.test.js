@@ -177,7 +177,9 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
         guardians.privateKeys[guardians.addresses[1]]
       ),
     ]
-    await depositSecurityModule.depositBufferedEther(
+
+    
+    await assert.reverts(depositSecurityModule.depositBufferedEther(
       block.number,
       block.hash,
       depositRoot,
@@ -186,7 +188,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       '0x00',
       signatures,
       [ETH(32)]
-    )
+    ), 'INVALID_ALLOCATED_KEYS_COUNT')
 
     // No Ether was deposited yet to the validator contract
 
@@ -524,7 +526,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       validAttestMessage.sign(guardians.privateKeys[guardians.addresses[1]]),
     ]
 
-    await depositSecurityModule.depositBufferedEther(
+    await assert.reverts(depositSecurityModule.depositBufferedEther(
       block.number,
       block.hash,
       depositRoot,
@@ -533,7 +535,7 @@ contract('Lido: penalties, slashing, operator stops', (addresses) => {
       '0x',
       signatures,
       [ETH(32)]
-    )
+    ), 'INVALID_ALLOCATED_KEYS_COUNT')
 
     const ether2Stat = await pool.getBeaconStat()
     assert.equals(ether2Stat.depositedValidators, 2, 'no validators have received the current deposit')
