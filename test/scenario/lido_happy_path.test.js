@@ -538,7 +538,7 @@ contract('Lido: happy path', (addresses) => {
       keysOpIndex,
       '0x',
       signatures,
-      [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)]
+      [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)]
     )
 
     let nodeOperatorInfo = await nodeOperatorsRegistry.getNodeOperator(nodeOperator3.id, false)

@@ -279,7 +279,7 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
       validAttestMessage.sign(guardians.privateKeys[guardians.addresses[0]]),
       validAttestMessage.sign(guardians.privateKeys[guardians.addresses[1]]),
     ]
-    await depositSecurityModule.depositBufferedEther(
+    await assert.reverts(depositSecurityModule.depositBufferedEther(
       block.number,
       block.hash,
       depositRoot,
@@ -288,7 +288,7 @@ contract('Lido: deposit loop iteration limit', ([user1, nobody, nodeOperator]) =
       '0x',
       signatures, 
       [ETH(32)]
-    )
+    ), 'INVALID_ALLOCATED_KEYS_COUNT')
 
     assert.equals(await depositContractMock.totalCalls(), 26, 'total validators assigned')
 
