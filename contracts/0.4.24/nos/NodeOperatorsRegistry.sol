@@ -15,6 +15,7 @@ import {IBurner} from "../../common/interfaces/IBurner.sol";
 import {SigningKeys} from "../lib/SigningKeys.sol";
 import {Packed64x4} from "../lib/Packed64x4.sol";
 import {Versioned} from "../utils/Versioned.sol";
+import "hardhat/console.sol";
 
 interface IStETH {
     function sharesOf(address _account) external view returns (uint256);
@@ -383,14 +384,15 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         _onlyExistedNodeOperator(_nodeOperatorId);
         _authP(SET_NODE_OPERATOR_LIMIT_ROLE, arr(uint256(_nodeOperatorId), uint256(_vettedSigningKeysCount)));
         _onlyCorrectNodeOperatorState(getNodeOperatorIsActive(_nodeOperatorId));
-
+        console.log("_nodeOperatorId2: ", _nodeOperatorId);
+        console.log("_vettedSigningKeysCount: ", uint256(_vettedSigningKeysCount));
         Packed64x4.Packed memory signingKeysStats = _loadOperatorSigningKeysStats(_nodeOperatorId);
 
         uint256 vettedSigningKeysCountAfter = Math256.min(
             signingKeysStats.get(TOTAL_KEYS_COUNT_OFFSET), 
             Math256.max(_vettedSigningKeysCount, signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET))
         );
-
+        console.log("vettedSigningKeysCountAfter: ", vettedSigningKeysCountAfter);
         if (vettedSigningKeysCountAfter == signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET)) {
             return;
         }
@@ -581,6 +583,7 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         Packed64x4.Packed memory operatorTargetStats = _loadOperatorTargetValidatorsStats(_nodeOperatorId);
         operatorTargetStats.set(IS_TARGET_LIMIT_ACTIVE_OFFSET, _isTargetLimitActive ? 1 : 0);
         operatorTargetStats.set(TARGET_VALIDATORS_COUNT_OFFSET, _isTargetLimitActive ? _targetLimit : 0);
+        
         _saveOperatorTargetValidatorsStats(_nodeOperatorId, operatorTargetStats);
 
         emit TargetValidatorsCountChanged(_nodeOperatorId, _targetLimit);
@@ -737,7 +740,8 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
             uint256[] memory nodeOperatorIds,
             uint256[] memory activeKeysCountAfterAllocation
         ) = _getSigningKeysAllocationData(_depositsCount);
-
+        console.log("_allocatedKeysCount: ", allocatedKeysCount);
+        console.log("_depositsCount2: ", _depositsCount);
         require(allocatedKeysCount == _depositsCount, "INVALID_ALLOCATED_KEYS_COUNT");
 
         (publicKeys, signatures, tos) = _loadAllocatedSigningKeys(
@@ -759,7 +763,10 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         exitedSigningKeysCount = signingKeysStats.get(TOTAL_EXITED_KEYS_COUNT_OFFSET);
         depositedSigningKeysCount = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
         maxSigningKeysCount = _loadOperatorTargetValidatorsStats(_nodeOperatorId).get(MAX_VALIDATORS_COUNT_OFFSET);
-
+        console.log("_nodeOperatorId: ", _nodeOperatorId);
+        console.log("exitedSigningKeysCount: ", exitedSigningKeysCount);
+        console.log("depositedSigningKeysCount: ", depositedSigningKeysCount);
+        console.log("maxSigningKeysCount: ", maxSigningKeysCount);
         // Validate data boundaries invariants here to not use SafeMath in caller methods
         assert(maxSigningKeysCount >= depositedSigningKeysCount && depositedSigningKeysCount >= exitedSigningKeysCount);
     }
@@ -772,11 +779,11 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         Packed64x4.Packed memory operatorTargetStats = _loadOperatorTargetValidatorsStats(_nodeOperatorId);
 
         uint256 depositedSigningKeysCount = signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET);
-
+        console.log("3depositedSigningKeysCount: ", depositedSigningKeysCount);
         // It's expected that validators don't suffer from penalties most of the time,
         // so optimistically, set the count of max validators equal to the vetted validators count.
         newMaxSigningKeysCount = signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET);
-
+        console.log("3newMaxSigningKeysCount: ", newMaxSigningKeysCount);
         if (!isOperatorPenaltyCleared(_nodeOperatorId)) {
             // when the node operator is penalized zeroing its depositable validators count
             newMaxSigningKeysCount = depositedSigningKeysCount;
@@ -798,6 +805,8 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         }
 
         oldMaxSigningKeysCount = operatorTargetStats.get(MAX_VALIDATORS_COUNT_OFFSET);
+        console.log("3oldMaxSigningKeysCount: ", oldMaxSigningKeysCount);
+        console.log("3newMaxSigningKeysCount: ", newMaxSigningKeysCount);
         if (oldMaxSigningKeysCount != newMaxSigningKeysCount) {
             operatorTargetStats.set(MAX_VALIDATORS_COUNT_OFFSET, newMaxSigningKeysCount);
             _saveOperatorTargetValidatorsStats(_nodeOperatorId, operatorTargetStats);
@@ -810,12 +819,14 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
         returns (uint256 allocatedKeysCount, uint256[] memory nodeOperatorIds, uint256[] memory activeKeyCountsAfterAllocation)
     {
         uint256 activeNodeOperatorsCount = getActiveNodeOperatorsCount();
+        console.log("activeNodeOperatorsCount: ", activeNodeOperatorsCount);
         nodeOperatorIds = new uint256[](activeNodeOperatorsCount);
         activeKeyCountsAfterAllocation = new uint256[](activeNodeOperatorsCount);
         uint256[] memory activeKeysCapacities = new uint256[](activeNodeOperatorsCount);
 
         uint256 activeNodeOperatorIndex;
         uint256 nodeOperatorsCount = getNodeOperatorsCount();
+        console.log("nodeOperatorsCount: ", nodeOperatorsCount);
         uint256 maxSigningKeysCount;
         uint256 depositedSigningKeysCount;
         uint256 exitedSigningKeysCount;
@@ -1090,12 +1101,12 @@ contract NodeOperatorsRegistry is AragonApp, Versioned {
             _fromIndex >= signingKeysStats.get(TOTAL_DEPOSITED_KEYS_COUNT_OFFSET)
                 && _fromIndex.add(_keysCount) <= totalSigningKeysCount
         );
-
+    
         totalSigningKeysCount =
             SIGNING_KEYS_MAPPING_NAME.removeKeysSigs(_nodeOperatorId, _fromIndex, _keysCount, totalSigningKeysCount);
         signingKeysStats.set(TOTAL_KEYS_COUNT_OFFSET, totalSigningKeysCount);
         emit TotalSigningKeysCountChanged(_nodeOperatorId, totalSigningKeysCount);
-
+        console.log("totalSigningKeysCount: ", totalSigningKeysCount);
         if (_fromIndex < signingKeysStats.get(TOTAL_VETTED_KEYS_COUNT_OFFSET)) {
             // decreasing the staking limit so the key at _index can't be used anymore
             signingKeysStats.set(TOTAL_VETTED_KEYS_COUNT_OFFSET, _fromIndex);

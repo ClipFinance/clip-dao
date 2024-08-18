@@ -1719,6 +1719,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.17.2":
+  version: 7.25.0
+  resolution: "@babel/runtime@npm:7.25.0"
+  dependencies:
+    regenerator-runtime: ^0.14.0
+  checksum: 9e39c9ced8eaf41686ba5cc88bb35a432e3af0b7bcb8acbd44ff7392b958b881061f694e6de201bb1ee3822efd486d2c38bf5727085ef013dfab67356e1c2560
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.10.4, @babel/template@npm:^7.4.4":
   version: 7.10.4
   resolution: "@babel/template@npm:7.10.4"
@@ -3780,6 +3789,7 @@ __metadata:
     node-gyp: ^8.4.1
     openzeppelin-solidity: 2.0.0
     prettier: ^2.8.4
+    rpc-websockets: 7.9.0
     solhint: ^3.3.7
     solhint-plugin-lido: ^0.0.4
     solidity-coverage: ^0.8.2
@@ -13161,7 +13171,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eventemitter3@npm:^4.0.0":
+"eventemitter3@npm:^4.0.0, eventemitter3@npm:^4.0.7":
   version: 4.0.7
   resolution: "eventemitter3@npm:4.0.7"
   checksum: 1fc12c7bc3b4194c50975827e72d56ff57c32b75a4c7dbf4d5eebf3c8371f6f1aad6799150b609de1b867c0d8a9885c08b6ca5e7e0dc437d6152f3063b2607dd
@@ -24043,6 +24053,13 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
+"regenerator-runtime@npm:^0.14.0":
+  version: 0.14.1
+  resolution: "regenerator-runtime@npm:0.14.1"
+  checksum: 945c5856b2dfe76c75569ad6aa1a65d212c25d541f47004c44a33b2a3e0a87e925350204c5adf48c9b927c2aa3d5d2ccf826fa716972d69f4447e169deea5627
+  languageName: node
+  linkType: hard
+
 "regenerator-transform@npm:^0.10.0":
   version: 0.10.1
   resolution: "regenerator-transform@npm:0.10.1"
@@ -24615,6 +24632,25 @@ resolve@^1.22.1:
     semver-compare: ^1.0.0
     sprintf-js: ^1.1.2
   checksum: 14f4920920e9e39717ce9cd2203694a0cfed06723d16328990c1507d768daed6b9256f58cc61e96ccebc93378a6f50af7982debee03bf88c04eddf8bf45d1897
+  languageName: node
+  linkType: hard
+
+"rpc-websockets@npm:7.9.0":
+  version: 7.9.0
+  resolution: "rpc-websockets@npm:7.9.0"
+  dependencies:
+    "@babel/runtime": ^7.17.2
+    bufferutil: ^4.0.1
+    eventemitter3: ^4.0.7
+    utf-8-validate: ^5.0.2
+    uuid: ^8.3.2
+    ws: ^8.5.0
+  dependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 68437446e63b8272f09d9d987f6cd269afc7bb5160784ed5890f9871218eda4fe3fe2c89d3fd71a2d6506f489084661077de574e5a1ecca379eda39b8e3a4d3d
   languageName: node
   linkType: hard
 
@@ -29891,6 +29927,21 @@ resolve@^1.22.1:
     utf-8-validate:
       optional: true
   checksum: 78d1e1112a366ed458ea5c08dc8390ff477b48e2c7ba386b74a12c346443e29d7eba620ea17f6df83451dbe48f8e3568b62c61ae5fb6e5e016b58e92ddede154
+  languageName: node
+  linkType: hard
+
+"ws@npm:^8.5.0":
+  version: 8.18.0
+  resolution: "ws@npm:8.18.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: bda67632473bdf09c43db55644cc76983958128f1255e42ed9565890d28f8c60af2973e9e0262827943453b03dfdedf47f648aeb1d354ed37904a4e3c235c604
   languageName: node
   linkType: hard
 

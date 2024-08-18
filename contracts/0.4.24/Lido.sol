@@ -705,7 +705,6 @@ contract Lido is Versioned, StETHPermit, AragonApp {
             _stakingRouter().getStakingModuleMaxDepositsCount(_stakingModuleId, getDepositableEther())
         );
         depositsCount = Math256.min(_amounts.length, depositsCount);
-        
         uint256 depositsValue;
         if (depositsCount > 0) {
             for (uint256 i = 0; i < depositsCount; ++i) {
