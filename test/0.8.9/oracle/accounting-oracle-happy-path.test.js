@@ -1,6 +1,6 @@
 const { contract } = require('hardhat')
 const { assert } = require('../../helpers/assert')
-const { e9, e18, e27, hex, toNum } = require('../../helpers/utils')
+const { e9, e18, e27, hex, toNum, ETH } = require('../../helpers/utils')
 
 const {
   SECONDS_PER_SLOT,
@@ -114,6 +114,7 @@ contract('AccountingOracle', ([admin, member1, member2, member3, stranger]) => {
         consensusVersion: CONSENSUS_VERSION,
         refSlot: +refSlot,
         numValidators: 10,
+        clValidatorsAmounts: [ETH(10), ETH(10), ETH(10), ETH(10), ETH(10), ETH(10), ETH(10), ETH(10), ETH(10), ETH(10)],
         clBalanceGwei: e9(320),
         stakingModuleIdsWithNewlyExitedValidators: [1],
         numExitedValidatorsByStakingModule: [3],

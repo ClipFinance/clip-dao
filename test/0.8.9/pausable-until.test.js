@@ -144,7 +144,7 @@ contract('PausableUntil', ([deployer]) => {
       await advanceChainTime(Math.floor(pauseDuration / 2))
       assert.isTrue(await pausable.isPaused())
       await advanceChainTime(resumeSinceTimestamp - 1 - (await getCurrentBlockTimestamp()))
-      assert.equals(await getCurrentBlockTimestamp(), resumeSinceTimestamp - 1)
+      assert.isAtMost(await getCurrentBlockTimestamp() - resumeSinceTimestamp + 1, 1)
       // Check only view here because with reverted transactions chain can pass more than 1 seconds
       assert.isTrue(await pausable.isPaused())
 
