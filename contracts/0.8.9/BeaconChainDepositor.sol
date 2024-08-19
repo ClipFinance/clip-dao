@@ -47,18 +47,21 @@ contract BeaconChainDepositor {
         address[] memory _tos,
         uint256[] calldata _amounts
     ) internal {
-        if (_publicKeysBatch.length != PUBLIC_KEY_LENGTH * _keysCount) {
-            revert InvalidPublicKeysBatchLength(_publicKeysBatch.length, PUBLIC_KEY_LENGTH * _keysCount);
-        }
-        if (_signaturesBatch.length != SIGNATURE_LENGTH * _keysCount) {
-            revert InvalidSignaturesBatchLength(_signaturesBatch.length, SIGNATURE_LENGTH * _keysCount);
-        }
-        if (_tos.length != _keysCount)  {
-            revert InvalidReceiversBatchLength(_tos.length, _keysCount);
-        }
-        if (_amounts.length < _tos.length) {
-            revert InvalidReceiversBatchLength(_tos.length, _amounts.length);
-        }
+        {
+            uint256 tosLength = _tos.length;
+            if (tosLength != _keysCount)  {
+                revert InvalidReceiversBatchLength(tosLength, _keysCount);
+            }
+            if (_amounts.length < tosLength) {
+                revert InvalidReceiversBatchLength(tosLength, _amounts.length);
+            }
+            if (_publicKeysBatch.length != PUBLIC_KEY_LENGTH * tosLength) {
+                revert InvalidPublicKeysBatchLength(_publicKeysBatch.length, PUBLIC_KEY_LENGTH * tosLength);
+            }
+            if (_signaturesBatch.length != SIGNATURE_LENGTH * tosLength) {
+                revert InvalidSignaturesBatchLength(_signaturesBatch.length, SIGNATURE_LENGTH * tosLength);
+            }
+        }    
 
         bytes memory publicKey = MemUtils.unsafeAllocateBytes(PUBLIC_KEY_LENGTH);
         bytes memory signature = MemUtils.unsafeAllocateBytes(SIGNATURE_LENGTH);

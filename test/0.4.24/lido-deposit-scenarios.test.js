@@ -6,6 +6,7 @@ const { assert } = require('../helpers/assert')
 const { wei } = require('../helpers/wei')
 const { PUBKEY_LENGTH, FakeValidatorKeys, SIGNATURE_LENGTH } = require('../helpers/signing-keys')
 const { ContractStub } = require('../helpers/contract-stub')
+const { ETH } = require('../helpers/utils')
 
 contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
   const STAKING_MODULE_ID = 1
@@ -92,7 +93,7 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
 
     const maxDepositsCount = 10
     await lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, 
-      [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor })
+      [ETH(32), ETH(32)], { from: depositor })
 
     assert.equals(await getBalance(stakingRouter), initialStakingRouterBalance)
     const depositedEther = wei`32 ether` * wei.min(maxDepositsCount, DEPOSITABLE_VALIDATORS_COUNT)
@@ -122,8 +123,8 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       const maxDepositsCount = 10
       await assert.reverts(
         lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor }),
-        'InvalidPublicKeysBatchLength',
-        [PUBKEY_LENGTH * depositDataLength, PUBKEY_LENGTH * DEPOSITABLE_VALIDATORS_COUNT]
+        'InvalidReceiversBatchLength',
+        [depositDataLength, 10]
       )
     })
 
@@ -150,8 +151,8 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       const maxDepositsCount = 10
       await assert.reverts(
         lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor }),
-        'InvalidPublicKeysBatchLength',
-        [PUBKEY_LENGTH * depositDataLength, PUBKEY_LENGTH * DEPOSITABLE_VALIDATORS_COUNT]
+        'InvalidReceiversBatchLength',
+        [1, 10]
       )
     })
 
@@ -178,8 +179,8 @@ contract('Lido deposit scenarios', ([deployer, staker, depositor]) => {
       const maxDepositsCount = 10
       await assert.reverts(
         lido.deposit(maxDepositsCount, STAKING_MODULE_ID, DEPOSIT_CALLDATA, [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)], { from: depositor }),
-        'InvalidSignaturesBatchLength',
-        [SIGNATURE_LENGTH * depositDataLength, SIGNATURE_LENGTH * DEPOSITABLE_VALIDATORS_COUNT]
+        'InvalidReceiversBatchLength',
+        [2, 10]
       )
     })
 

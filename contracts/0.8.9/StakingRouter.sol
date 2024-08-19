@@ -1185,7 +1185,7 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         emit StakingRouterETHDeposited(_stakingModuleId, depositsValue);
         uint256 totalDeposits;
         unchecked {
-            for (uint256 i; i < _depositsCount; ++i) {
+            for (uint256 i; (i < _depositsCount) && (i < _amounts.length); ++i) {
                 totalDeposits += _amounts[i];
             }
         }

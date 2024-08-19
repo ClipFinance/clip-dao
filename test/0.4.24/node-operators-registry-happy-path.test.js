@@ -540,6 +540,7 @@ contract('NodeOperatorsRegistry', ([appManager, rewards1, rewards2, rewards3, re
         const reportFields = {
           consensusVersion,
           numValidators: 6,
+          clValidatorsAmounts: [ETH(32), ETH(32), ETH(32), ETH(32), ETH(32), ETH(32)],
           clBalanceGwei: toBN(ETH(32 * 6 + 1)).div(E9),
           stakingModuleIdsWithNewlyExitedValidators: [curatedId],
           numExitedValidatorsByStakingModule: [2],

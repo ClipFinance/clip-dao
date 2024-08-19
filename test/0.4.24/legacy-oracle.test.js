@@ -1,7 +1,7 @@
 const { contract, ethers, artifacts, web3 } = require('hardhat')
 const { assert } = require('../helpers/assert')
 const { impersonate } = require('../helpers/blockchain')
-const { e9, e18, e27, toBN } = require('../helpers/utils')
+const { e9, e18, e27, toBN, ETH } = require('../helpers/utils')
 const { legacyOracleFactory } = require('../helpers/factories')
 
 const OssifiableProxy = artifacts.require('OssifiableProxy')
