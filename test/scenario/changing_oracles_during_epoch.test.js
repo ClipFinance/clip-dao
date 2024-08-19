@@ -1,7 +1,7 @@
 const { contract } = require('hardhat')
 
 const { assert } = require('../helpers/assert')
-const { e9 } = require('../helpers/utils')
+const { e9, ETH } = require('../helpers/utils')
 
 const {
   deployAccountingOracleSetup,
