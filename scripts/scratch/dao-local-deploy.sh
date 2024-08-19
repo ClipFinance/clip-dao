@@ -4,7 +4,7 @@ set -o pipefail
 
 #
 export NETWORK=local
-export RPC_URL=${RPC_URL:="http://127.0.0.1:8555"}  # if defined use the value set to default otherwise
+export RPC_URL=${RPC_URL:="http://127.0.0.1:8545"}  # if defined use the value set to default otherwise
 
 # If GateSeal factory is zero, deploy no GateSeal instance. Otherwise use the factory to deploy an instance
 export GATE_SEAL_FACTORY=0x0000000000000000000000000000000000000000

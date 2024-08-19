@@ -14,6 +14,12 @@ require('hardhat-contract-sizer')
 require('hardhat-ignore-warnings')
 require('./foundry/skip-sol-tests-compilation')
 
+// required for BigInt serialization to JSON with JSON.stringify method during response
+// eslint-disable-next-line no-extend-native
+BigInt.prototype.toJSON = function () {
+  return this.toString()
+}
+
 const NETWORK_NAME = getNetworkName()
 const ETH_ACCOUNT_NAME = process.env.ETH_ACCOUNT_NAME
 const RPC_URL = process.env.RPC_URL
