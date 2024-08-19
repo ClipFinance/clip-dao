@@ -717,7 +717,7 @@ contract('Lido: handleOracleReport', ([appManager, , , , , , bob, stranger, anot
       for (let i = 0; i < 100; ++i) {
         clValidatorsAmounts.push(ETH(32))
       }
-      console.log("TTTTTTTTTTTTT")
+      
       await lido.handleOracleReport(
         ...Object.values({
           ...DEFAULT_LIDO_ORACLE_REPORT,

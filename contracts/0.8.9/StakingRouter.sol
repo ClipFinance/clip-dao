@@ -14,7 +14,6 @@ import {MinFirstAllocationStrategy} from "../common/lib/MinFirstAllocationStrate
 
 import {BeaconChainDepositor} from "./BeaconChainDepositor.sol";
 import {Versioned} from "./utils/Versioned.sol";
-import "hardhat/console.sol";
 
 contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Versioned {
     using UnstructuredStorage for bytes32;
@@ -1013,8 +1012,6 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         ) = _getDepositsAllocation(_maxDepositsValue);*/
         return _maxDepositsValue > 0 ? 1_000_000 : 0;
         /*uint256 stakingModuleIndex = _getStakingModuleIndexById(_stakingModuleId);
-        console.log("newDepositsAllocation[stakingModuleIndex]: ", newDepositsAllocation[stakingModuleIndex]);
-        console.log("stakingModulesCache[stakingModuleIndex].activeValidatorsCount: ", stakingModulesCache[stakingModuleIndex].activeValidatorsCount);
         return
             newDepositsAllocation[stakingModuleIndex] - stakingModulesCache[stakingModuleIndex].activeValidatorsCount;
             */
@@ -1170,7 +1167,6 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         bytes calldata _depositCalldata,
         uint256[] calldata _amounts
     ) external payable {
-        console.log("_depositsCount: ", _depositsCount);
         if (msg.sender != LIDO_POSITION.getStorageAddress()) revert AppAuthLidoFailed();
         
         bytes32 withdrawalCredentials = getWithdrawalCredentials();
@@ -1333,25 +1329,19 @@ contract StakingRouter is AccessControlEnumerable, BeaconChainDepositor, Version
         uint256 totalActiveValidators;
 
         (totalActiveValidators, stakingModulesCache) = _loadStakingModulesCache();
-        console.log("totalActiveValidators: ", totalActiveValidators);
-
+ 
         uint256 stakingModulesCount = stakingModulesCache.length;
-        console.log("stakingModulesCount: ", stakingModulesCount);
         allocations = new uint256[](stakingModulesCount);
         if (stakingModulesCount > 0) {
             /// @dev new estimated active validators count
             totalActiveValidators += _depositsToAllocate;
-            console.log("totalActiveValidators2: ", totalActiveValidators);
             uint256[] memory capacities = new uint256[](stakingModulesCount);
             //uint256 targetValidators;
             unchecked {
                 for (uint256 i; i < stakingModulesCount; ++i) {
                     allocations[i] = stakingModulesCache[i].activeValidatorsCount;
-                    console.log("allocations[i]: ", allocations[i]);
                     uint256 targetValidators = (stakingModulesCache[i].targetShare * totalActiveValidators) / TOTAL_BASIS_POINTS;
-                    console.log("targetValidators: ", targetValidators);
                     capacities[i] = Math256.min(targetValidators, stakingModulesCache[i].activeValidatorsCount + stakingModulesCache[i].availableValidatorsCount);
-                    console.log("capacities[i]: ", capacities[i]);
                 }
             }
 

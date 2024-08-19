@@ -955,7 +955,7 @@ contract('Lido', ([appManager, , , , , , , , , , , , user1, user2, user3, nobody
     await operators.removeSigningKey(0, 1, { from: voting })
 
     await web3.eth.sendTransaction({ to: app.address, from: user3, value: ETH(100) })
-    console.log("ttttttttttttttt");
+    
     await assert.reverts(app.methods['deposit(uint256,uint256,bytes,uint256[])'](MAX_DEPOSITS, CURATED_MODULE_ID, CALLDATA,
       [ETH(32), ETH(32), ETH(32)], { from: depositor }), 'INVALID_ALLOCATED_KEYS_COUNT');
     assert.equals(await depositContract.totalCalls(), 1)

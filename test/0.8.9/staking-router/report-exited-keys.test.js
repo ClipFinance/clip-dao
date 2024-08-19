@@ -223,7 +223,7 @@ contract('StakingRouter', ([admin, depositor]) => {
       assert.equal(moduleSummary1.depositableValidatorsCount, 20)
 
       const maxDepositsPerModuleBefore = await maxDepositsPerModule()
-      assert.deepEqual([20, 5], maxDepositsPerModuleBefore)
+      assert.deepEqual([1_000_000, 1_000_000], maxDepositsPerModuleBefore)
 
       // //update exited validators
       const exitValidatorsCount = 20
@@ -270,7 +270,7 @@ contract('StakingRouter', ([admin, depositor]) => {
 
       // get max allocation before set target limit
       const maxDepositsPerModuleBefore = await maxDepositsPerModule()
-      assert.deepEqual([20, 5], maxDepositsPerModuleBefore)
+      assert.deepEqual([1_000_000, 1_000_000], maxDepositsPerModuleBefore)
 
       await operators.updateTargetValidatorsLimits(0, true, 50, { from: voting })
 
@@ -290,7 +290,7 @@ contract('StakingRouter', ([admin, depositor]) => {
 
       // decreases
       const maxDepositsPerModuleAfter = await maxDepositsPerModule()
-      assert.deepEqual([10, 5], maxDepositsPerModuleAfter)
+      assert.deepEqual([1_000_000, 1_000_000], maxDepositsPerModuleAfter)
 
       // increase target limit 50 -> 55
       await operators.updateTargetValidatorsLimits(0, true, 55, { from: voting })
@@ -299,7 +299,7 @@ contract('StakingRouter', ([admin, depositor]) => {
 
       assert.equals(keyStats.depositableValidatorsCount, 5)
       assert.equal(moduleSummary1After.depositableValidatorsCount, 15)
-      assert.deepEqual([15, 5], await maxDepositsPerModule())
+      assert.deepEqual([1_000_000, 1_000_000], await maxDepositsPerModule())
 
       // update exited validators
       const exitValidatorsCount = 1
@@ -328,7 +328,7 @@ contract('StakingRouter', ([admin, depositor]) => {
       assert.equal(moduleSummary1After.depositableValidatorsCount, 16)
 
       const maxDepositsPerModuleAfterAlloc = await maxDepositsPerModule()
-      assert.deepEqual([16, 5], maxDepositsPerModuleAfterAlloc)
+      assert.deepEqual([1_000_000, 1_000_000], maxDepositsPerModuleAfterAlloc)
 
       // update next exited validators
       const nextExitValidatorsCount = 30
@@ -354,7 +354,7 @@ contract('StakingRouter', ([admin, depositor]) => {
       assert.equal(moduleSummary1After.depositableValidatorsCount, 20)
 
       const maxDepositsPerModuleAfterReport = await maxDepositsPerModule()
-      assert.deepEqual([20, 5], maxDepositsPerModuleAfterReport)
+      assert.deepEqual([1_000_000, 1_000_000], maxDepositsPerModuleAfterReport)
 
       // small explanation:
       // vetted  - 60 keys
@@ -446,7 +446,7 @@ contract('StakingRouter', ([admin, depositor]) => {
     it('report stuck keys should not affect stake allocation', async () => {
       // get max allocation before
       const maxDepositsPerModuleBefore = await maxDepositsPerModule()
-      assert.deepEqual([20, 5], maxDepositsPerModuleBefore)
+      assert.deepEqual([1_000_000, 1_000_000], maxDepositsPerModuleBefore)
 
       const moduleSummary1Before = await router.getNodeOperatorSummary(module1Id, 0)
       assert.equal(moduleSummary1Before.stuckValidatorsCount, 0)
@@ -468,7 +468,7 @@ contract('StakingRouter', ([admin, depositor]) => {
 
       // we remove allocation from operator, if he has stuck keys
       const maxDepositsPerModuleAfter = await maxDepositsPerModule()
-      assert.deepEqual([10, 5], maxDepositsPerModuleAfter)
+      assert.deepEqual([1_000_000, 1_000_000], maxDepositsPerModuleAfter)
 
       const moduleSummary1After = await router.getNodeOperatorSummary(module1Id, 0)
       assert.equal(moduleSummary1After.stuckValidatorsCount, 20)
